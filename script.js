@@ -1037,13 +1037,8 @@ class GameController {
             return;
         }
 
-        const correctAnswer = this.getCorrectAnswerForArea(area);
-
-        if (number === correctAnswer) {
-            this.handleCorrectAnswer(area, color, number);
-        } else {
-            this.handleIncorrectAnswer(area, correctAnswer);
-        }
+        // Pintar a área diretamente quando arrastar a cor
+        this.paintArea(area, color);
     }
     
     /* ===== CONFIGURAÇÃO DE HANDLERS RESPONSIVOS ===== */
@@ -1122,7 +1117,8 @@ class GameController {
             return;
         }
 
-        this.processAreaClick(clickedArea, selectedColor);
+        // Pintar a área diretamente quando clicar ou arrastar a cor
+        this.paintArea(clickedArea, selectedColor);
     }
 
     processAreaClick(area, selectedColor) {
@@ -1133,6 +1129,49 @@ class GameController {
             this.handleCorrectAnswer(area, selectedColor, selectedNumber);
         } else {
             this.handleIncorrectAnswer(area, correctAnswer);
+        }
+    }
+
+    /* ===== PINTURA DIRETA DE ÁREA ===== */
+    paintArea(area, color) {
+        // Pintar a área diretamente
+        ColorManager.updateElementColor(area, color);
+        
+        this.gameState.addPaintedArea(area);
+        
+        // Adicionar classe painted para ativar efeitos de brilho
+        const rocket = document.getElementById('rocket');
+        rocket.classList.add('painted');
+        
+        // Esconder o texto do cálculo quando for pintado
+        const areaMapping = {
+            'planet': 'planet',
+            'sun': 'sun',
+            'rocket-top': 'rocketTop',
+            'rocket-window': 'rocketWindow',
+            'rocket-bottom': 'rocketBottom',
+            'rocket-flame': 'rocketFlame',
+            'astronaut-head': 'astronautHead',
+            'astronaut-torso': 'astronautTorso',
+            'astronaut-legs': 'astronautLegs'
+        };
+        const mappedArea = areaMapping[area];
+        UIManager.hideCalculationText(mappedArea);
+        
+        // Marcar a cor como usada
+        const selectedNumber = this.gameState.getSelectedNumber();
+        if (selectedNumber) {
+            this.gameState.addUsedNumber(selectedNumber);
+            UIManager.markColorAsUsed(selectedNumber);
+        }
+        
+        UIManager.showFeedback('🎨 Área pintada!', 'success');
+        UIManager.addSuccessAnimation();
+        
+        if (this.gameState.isGameComplete()) {
+            setTimeout(() => {
+                UIManager.showFeedback('🚀 Parabéns! Você completou o foguete! Clique em "Novo Jogo" para jogar novamente.', 'success');
+            }, 1000);
         }
     }
 
