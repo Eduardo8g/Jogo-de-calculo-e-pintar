@@ -187,6 +187,8 @@ class UIManager {
         if (element) {
             element.textContent = text;
             this.adjustTextPosition(element, area);
+            // Tornar a box de cálculo interativa
+            this.makeCalculationBoxInteractive(element, area);
         }
     }
 
@@ -271,10 +273,15 @@ class UIManager {
             element.style.opacity = '';
             element.style.transform = '';
             
+            // Limpar estados visuais de drag/drop
+            element.classList.remove('drag-over-calc', 'drop-success-calc');
+            
             // Ajustar posição baseado no dispositivo atual
             const area = this.getElementArea(element);
             if (area) {
                 this.adjustTextPosition(element, area);
+                // Garantir que a box seja interativa
+                this.makeCalculationBoxInteractive(element, area);
             }
         });
         
@@ -333,6 +340,118 @@ class UIManager {
             astronautLegs: 'astronautLegsSumText'
         };
         return mapping[area];
+    }
+
+    static makeCalculationBoxInteractive(element, area) {
+        // Remover eventos anteriores para evitar duplicação
+        element.removeEventListener('click', element._clickHandler);
+        element.removeEventListener('dragover', element._dragoverHandler);
+        element.removeEventListener('dragleave', element._dragleaveHandler);
+        element.removeEventListener('drop', element._dropHandler);
+        
+        // Tornar clicável
+        element.style.pointerEvents = 'auto';
+        element.style.cursor = 'pointer';
+        
+        // Adicionar classe para estilização
+        element.classList.add('interactive-calc');
+        
+        // Handler de clique
+        element._clickHandler = (e) => {
+            e.stopPropagation();
+            const selectedColor = gameController.gameState.getSelectedColor();
+            const selectedNumber = gameController.gameState.getSelectedNumber();
+            
+            if (!selectedColor) {
+                UIManager.showFeedback('🎨 Primeiro escolha uma cor!', 'error');
+                return;
+            }
+            
+            if (gameController.gameState.isPainted(area)) {
+                UIManager.showFeedback('🖌️ Esta área já foi pintada!', 'error');
+                return;
+            }
+            
+            gameController.processAreaClick(area, selectedColor);
+        };
+        
+        // Handler de dragover
+        element._dragoverHandler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            element.classList.add('drag-over-calc');
+            
+            // Remover a classe drag-over do foguete quando estiver sobre a box de cálculo
+            const rocket = document.getElementById('rocket');
+            if (rocket) {
+                rocket.classList.remove('drag-over');
+            }
+        };
+        
+        // Handler de dragleave
+        element._dragleaveHandler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // Verificar se realmente saiu da área da box
+            const rect = element.getBoundingClientRect();
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+                element.classList.remove('drag-over-calc');
+                
+                // Verificar se o mouse está sobre o foguete para adicionar a classe drag-over
+                const rocket = document.getElementById('rocket');
+                if (rocket) {
+                    const rocketRect = rocket.getBoundingClientRect();
+                    if (x >= rocketRect.left && x <= rocketRect.right && 
+                        y >= rocketRect.top && y <= rocketRect.bottom) {
+                        rocket.classList.add('drag-over');
+                    }
+                }
+            }
+        };
+        
+        // Handler de drop
+        element._dropHandler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            element.classList.remove('drag-over-calc');
+            
+            try {
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                
+                if (gameController.gameState.isPainted(area)) {
+                    UIManager.showFeedback('🖌️ Esta área já foi pintada!', 'error');
+                    return;
+                }
+                
+                gameController.handleDragAndDrop(area, data.color, data.number);
+                
+                // Adicionar feedback visual de sucesso
+                element.classList.add('drop-success-calc');
+                setTimeout(() => {
+                    element.classList.remove('drop-success-calc');
+                }, 300);
+                
+            } catch (error) {
+                console.error('Erro ao processar drop na box de cálculo:', error);
+            }
+        };
+        
+        // Adicionar eventos
+        element.addEventListener('click', element._clickHandler);
+        element.addEventListener('dragover', element._dragoverHandler);
+        element.addEventListener('dragleave', element._dragleaveHandler);
+        element.addEventListener('drop', element._dropHandler);
+        
+        // Suporte para dispositivos móveis
+        if (ResponsiveUtils.isMobile()) {
+            element.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                element._clickHandler(e);
+            }, { passive: false });
+        }
     }
 
     /* ===== GERENCIAMENTO DAS OPÇÕES DE COR ===== */
@@ -592,7 +711,7 @@ class ColorManager {
         });
         
         const rocket = document.getElementById('rocket');
-        rocket.classList.remove('painted', 'success');
+        rocket.classList.remove('painted', 'success', 'drag-over', 'drop-success');
     }
 
     static generateRandomColors(count) {
@@ -1092,6 +1211,17 @@ class GameController {
         ColorManager.resetColors();
         UIManager.resetColorOptions();
         UIManager.showAllCalculationTexts();
+        
+        // Garantir que todos os estados visuais sejam limpos
+        const rocket = document.getElementById('rocket');
+        if (rocket) {
+            rocket.classList.remove('drag-over', 'drop-success');
+        }
+        
+        // Limpar também os estados das boxes de cálculo
+        document.querySelectorAll('.sum-text.interactive-calc').forEach(element => {
+            element.classList.remove('drag-over-calc', 'drop-success-calc');
+        });
     }
 
     /* ===== SELEÇÃO DE CORES ===== */
