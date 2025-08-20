@@ -1,7 +1,7 @@
 /* ============================================================================
    CONFIGURAÇÕES DO JOGO
    ============================================================================ */
-const GAME_CONFIG = {
+   const GAME_CONFIG = {
     colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'],
     maxNumber: 18,
     minNumber: 4,
@@ -343,6 +343,9 @@ class UIManager {
         gameNumbers.forEach((number, index) => {
             const option = document.createElement('div');
             option.className = 'color-option';
+            option.draggable = true; // Tornar arrastável
+            option.dataset.number = number;
+            option.dataset.color = colors[index];
             
             // Usar touchstart para melhor resposta em dispositivos móveis
             if (ResponsiveUtils.isMobile()) {
@@ -837,6 +840,9 @@ class GameController {
             this.handleRocketClick(touch.clientX, touch.clientY);
         }, { passive: false });
 
+        // Eventos de drag and drop
+        this.setupDragAndDrop();
+
         const difficultySelect = document.getElementById('difficultySelect');
         if (difficultySelect) {
             // Sincronizar dificuldade inicial com o seletor
@@ -846,6 +852,197 @@ class GameController {
                 this.gameState.setDifficulty(level);
                 this.newGame();
             });
+        }
+    }
+
+    /* ===== CONFIGURAÇÃO DE DRAG AND DROP ===== */
+    setupDragAndDrop() {
+        const rocket = document.getElementById('rocket');
+        const dragIndicator = document.getElementById('dragIndicator');
+        
+        // Eventos de drag para as cores
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('color-option')) {
+                const number = parseInt(e.target.dataset.number);
+                const color = e.target.dataset.color;
+                
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    number: number,
+                    color: color
+                }));
+                
+                e.target.style.opacity = '0.5';
+                e.target.classList.add('dragging');
+                
+                // Mostrar indicador de drag
+                dragIndicator.textContent = number;
+                dragIndicator.style.backgroundColor = color;
+                dragIndicator.classList.add('show');
+                
+                // Definir imagem de drag personalizada para mostrar apenas a cor e o número
+                e.dataTransfer.setDragImage(dragIndicator, 20, 20);
+            }
+        });
+
+        document.addEventListener('drag', (e) => {
+            if (e.target.classList.contains('color-option')) {
+                // Atualizar posição do indicador
+                dragIndicator.style.left = (e.clientX - 20) + 'px';
+                dragIndicator.style.top = (e.clientY - 20) + 'px';
+            }
+        });
+
+        document.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('color-option')) {
+                e.target.style.opacity = '1';
+                e.target.classList.remove('dragging');
+                dragIndicator.classList.remove('show');
+            }
+        });
+
+        // Eventos de drop no foguete
+        rocket.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            rocket.classList.add('drag-over');
+        });
+
+        rocket.addEventListener('dragleave', (e) => {
+            // Verificar se realmente saiu da área do foguete
+            const rect = rocket.getBoundingClientRect();
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+                rocket.classList.remove('drag-over');
+            }
+        });
+
+        rocket.addEventListener('drop', (e) => {
+            e.preventDefault();
+            rocket.classList.remove('drag-over');
+            dragIndicator.classList.remove('show');
+            
+            try {
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                const clickedArea = ClickDetector.getClickedArea(e.clientX, e.clientY);
+                
+                if (clickedArea) {
+                    this.handleDragAndDrop(clickedArea, data.color, data.number);
+                    // Adicionar feedback visual de sucesso
+                    rocket.classList.add('drop-success');
+                    setTimeout(() => {
+                        rocket.classList.remove('drop-success');
+                    }, 300);
+                } else {
+                    UIManager.showFeedback('🎯 Solte a cor em uma área com cálculo!', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao processar drop:', error);
+            }
+        });
+
+        // Suporte para dispositivos móveis com touch events
+        if (ResponsiveUtils.isMobile()) {
+            let draggedElement = null;
+            let startX, startY;
+            let isDragging = false;
+
+            document.addEventListener('touchstart', (e) => {
+                if (e.target.classList.contains('color-option')) {
+                    draggedElement = e.target;
+                    const touch = e.touches[0];
+                    startX = touch.clientX;
+                    startY = touch.clientY;
+                    isDragging = false;
+                    e.target.style.opacity = '0.5';
+                    e.target.classList.add('dragging');
+                    
+                    // Mostrar indicador de drag
+                    const number = parseInt(e.target.dataset.number);
+                    const color = e.target.dataset.color;
+                    dragIndicator.textContent = number;
+                    dragIndicator.style.backgroundColor = color;
+                    dragIndicator.style.left = (touch.clientX - 20) + 'px';
+                    dragIndicator.style.top = (touch.clientY - 20) + 'px';
+                    dragIndicator.classList.add('show');
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchmove', (e) => {
+                if (draggedElement) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const deltaX = Math.abs(touch.clientX - startX);
+                    const deltaY = Math.abs(touch.clientY - startY);
+                    
+                    // Atualizar posição do indicador
+                    dragIndicator.style.left = (touch.clientX - 20) + 'px';
+                    dragIndicator.style.top = (touch.clientY - 20) + 'px';
+                    
+                    if (deltaX > 10 || deltaY > 10) {
+                        isDragging = true;
+                        rocket.classList.add('drag-over');
+                    }
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', (e) => {
+                if (draggedElement && isDragging) {
+                    const touch = e.changedTouches[0];
+                    const endX = touch.clientX;
+                    const endY = touch.clientY;
+                    
+                    // Verificar se o movimento foi significativo
+                    const deltaX = Math.abs(endX - startX);
+                    const deltaY = Math.abs(endY - startY);
+                    
+                    if (deltaX > 30 || deltaY > 30) {
+                        const clickedArea = ClickDetector.getClickedArea(endX, endY);
+                        if (clickedArea) {
+                            const number = parseInt(draggedElement.dataset.number);
+                            const color = draggedElement.dataset.color;
+                            this.handleDragAndDrop(clickedArea, color, number);
+                            
+                            // Adicionar feedback visual de sucesso
+                            rocket.classList.add('drop-success');
+                            setTimeout(() => {
+                                rocket.classList.remove('drop-success');
+                            }, 300);
+                        } else {
+                            UIManager.showFeedback('🎯 Solte a cor em uma área com cálculo!', 'error');
+                        }
+                    }
+                    
+                    rocket.classList.remove('drag-over');
+                    draggedElement.style.opacity = '1';
+                    draggedElement.classList.remove('dragging');
+                    draggedElement = null;
+                    isDragging = false;
+                    dragIndicator.classList.remove('show');
+                } else if (draggedElement) {
+                    // Se não estava arrastando, apenas resetar
+                    draggedElement.style.opacity = '1';
+                    draggedElement.classList.remove('dragging');
+                    draggedElement = null;
+                    dragIndicator.classList.remove('show');
+                }
+            });
+        }
+    }
+
+    /* ===== PROCESSAMENTO DE DRAG AND DROP ===== */
+    handleDragAndDrop(area, color, number) {
+        if (this.gameState.isPainted(area)) {
+            UIManager.showFeedback('🖌️ Esta área já foi pintada!', 'error');
+            return;
+        }
+
+        const correctAnswer = this.getCorrectAnswerForArea(area);
+
+        if (number === correctAnswer) {
+            this.handleCorrectAnswer(area, color, number);
+        } else {
+            this.handleIncorrectAnswer(area, correctAnswer);
         }
     }
     

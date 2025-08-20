@@ -15,7 +15,7 @@
     
     <!-- ===== SEÇÃO DE INSTRUÇÕES ===== -->
     <div class="instructions">
-        <p>📝 <strong>Como jogar:</strong> Cada parte do desenho tem um cálculo. Faça as somas, encontre os resultados na lista, escolha as cores e clique em cada parte para pintá-las! As cores podem ser usadas quantas vezes quiser!</p>
+        <p>📝 <strong>Como jogar:</strong> Cada parte do desenho tem um cálculo. Faça as somas, encontre os resultados na lista e <strong>clique nas cores ou arraste-as</strong> até cada parte para pintá-las! As cores podem ser usadas quantas vezes quiser!</p>
     </div>
 
     <!-- ===== CONTAINER PRINCIPAL DO JOGO ===== -->
@@ -23,7 +23,7 @@
         
         <!-- ===== ÁREA DO FOGUETE E DESENHO ===== -->
         <div class="rocket-container">
-            <div class="rocket" id="rocket">
+            <div class="rocket drop-zone" id="rocket">
                 
                 <!-- ===== SVG DO DESENHO ===== -->
                 <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
@@ -492,6 +492,9 @@
 
     <!-- ===== SEÇÃO DE FEEDBACK ===== -->
     <div class="feedback" id="feedback"></div>
+
+    <!-- ===== INDICADOR DE DRAG ===== -->
+    <div class="drag-indicator" id="dragIndicator"></div>
 
     <!-- ===== SCRIPTS ===== -->
     <script src="script.js"></script>
