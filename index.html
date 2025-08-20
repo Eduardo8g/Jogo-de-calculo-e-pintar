@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Jogo do Foguete - Soma e Pinte</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ===== SEÇÃO DO TÍTULO ===== -->
+    <h1 class="game-title">🚀 Jogo do Foguete - Calcule e Pinte</h1>
+    
+    <!-- ===== SEÇÃO DE INSTRUÇÕES ===== -->
+    <div class="instructions">
+        <p>📝 <strong>Como jogar:</strong> Cada parte do desenho tem um cálculo. Faça as somas, encontre os resultados na lista, escolha as cores e clique em cada parte para pintá-las! As cores podem ser usadas quantas vezes quiser!</p>
+    </div>
+
+    <!-- ===== CONTAINER PRINCIPAL DO JOGO ===== -->
+    <div class="game-container">
+        
+        <!-- ===== ÁREA DO FOGUETE E DESENHO ===== -->
+        <div class="rocket-container">
+            <div class="rocket" id="rocket">
+                
+                <!-- ===== SVG DO DESENHO ===== -->
+                <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                    
+                    <!-- ===== DEFINIÇÕES E GRADIENTES ===== -->
+                    <defs>
+                        <!-- Gradiente para sombreamento do topo do foguete -->
+                        <linearGradient id="rocketTopShadowGrad" x1="80" y1="15" x2="80" y2="120" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#000000" stop-opacity="0.28"/>
+                            <stop offset="45%" stop-color="#000000" stop-opacity="0.12"/>
+                            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- ===== PLANETA/LUA ===== -->
+                    <g transform="translate(30, 30)">
+                        <!-- Corpo principal da lua -->
+                        <circle cx="70" cy="70" r="50" fill="#E8E8E8" stroke="#333333" stroke-width="2" class="planet-main"/>
+                        
+                        <!-- Crateras -->
+                        <circle cx="55" cy="50" r="8" fill="#CCCCCC" stroke="#333333" stroke-width="1" class="planet-crater"/>
+                        <circle cx="85" cy="75" r="6" fill="#CCCCCC" stroke="#333333" stroke-width="1" class="planet-crater"/>
+                        <circle cx="60" cy="95" r="7" fill="#CCCCCC" stroke="#333333" stroke-width="1" class="planet-crater"/>
+                        <circle cx="45" cy="85" r="4" fill="#CCCCCC" stroke="#333333" stroke-width="1" class="planet-crater"/>
+                        
+                        <!-- Crateras menores -->
+                        <circle cx="75" cy="45" r="3" fill="#CCCCCC"/>
+                        <circle cx="95" cy="90" r="3.5" fill="#CCCCCC"/>
+                        <circle cx="40" cy="95" r="2" fill="#CCCCCC"/>
+                        
+                        <!-- Efeitos de brilho da lua (aparecem quando pintada) -->
+                        <circle cx="70" cy="70" r="60" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0" class="planet-glow-outer"/>
+                        <circle cx="70" cy="70" r="55" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0" class="planet-glow-inner"/>
+                        <circle cx="60" cy="60" r="25" fill="#FFFFFF" opacity="0" class="planet-highlight"/>
+                        <circle cx="65" cy="65" r="15" fill="#FFFFFF" opacity="0" class="planet-highlight"/>
+                        <circle cx="80" cy="55" r="8" fill="#FFFFFF" opacity="0" class="planet-highlight"/>
+                        <circle cx="55" cy="80" r="6" fill="#FFFFFF" opacity="0" class="planet-highlight"/>
+                    </g>
+                    
+                    <!-- ===== SOL ===== -->
+                    <g transform="translate(580, 20)">
+                        <!-- Raios do sol -->
+                        <g stroke="#E8E8E8" stroke-width="4" fill="none" class="sun-rays">
+                            <path d="M100,5 L100,115"/>
+                            <path d="M15,60 L185,60"/>
+                            <path d="M35,20 L155,100"/>
+                            <path d="M35,100 L155,20"/>
+                            <path d="M55,25 L145,95"/>
+                            <path d="M55,95 L145,25"/>
+                        </g>
+                        
+                        <!-- Corpo principal do sol -->
+                        <circle cx="100" cy="60" r="40" fill="#E8E8E8" stroke="#333333" stroke-width="2" class="sun-main"/>
+                        
+                        <!-- Brilho interno -->
+                        <circle cx="90" cy="50" r="20" fill="#FFFFFF" opacity="0.7" class="sun-glow"/>
+                        
+                        <!-- Pontos de luz -->
+                        <circle cx="85" cy="45" r="4" fill="#FFFFFF" class="sun-glow"/>
+                        <circle cx="105" cy="55" r="3" fill="#FFFFFF" class="sun-glow"/>
+                        <circle cx="95" cy="70" r="2.5" fill="#FFFFFF" class="sun-glow"/>
+                    </g>
+                    
+                    <!-- ===== FOGUETE ===== -->
+                    <g transform="translate(120, 150)">
+                        
+                        <!-- ===== CORPO INFERIOR DO FOGUETE ===== -->
+                        <!-- Corpo principal inferior (bottom) -->
+                        <ellipse cx="80" cy="175" rx="45" ry="45" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="rocket-bottom"/>
+                        
+                        <!-- Reflexo metálico inferior -->
+                        <ellipse cx="65" cy="170" rx="15" ry="35" fill="#CCCCCC" opacity="0.4" class="rocket-bottom"/>
+                        
+                        <!-- Sistema de propulsão -->
+                        <rect x="48" y="208" width="64" height="16" fill="#555555" stroke="#333333" stroke-width="3" rx="8" class="rocket-bottom"/>
+                        <rect x="52" y="212" width="56" height="8" fill="#777777" stroke="#333333" stroke-width="1" rx="4" class="rocket-bottom"/>
+                        
+                        <!-- Bocais dos motores -->
+                        <circle cx="60" cy="218" r="4" fill="#666666" stroke="#333333" stroke-width="1"/>
+                        <circle cx="75" cy="218" r="4" fill="#666666" stroke="#333333" stroke-width="1"/>
+                        <circle cx="90" cy="218" r="4" fill="#666666" stroke="#333333" stroke-width="1"/>
+                        <circle cx="105" cy="218" r="4" fill="#666666" stroke="#333333" stroke-width="1"/>
+                        
+                        <!-- Aletas -->
+                        <path d="M35,200 L8,245 L35,230 Z" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="rocket-bottom"/>
+                        <path d="M125,200 L152,245 L125,230 Z" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="rocket-bottom"/>
+                        
+                        <!-- Detalhes nas aletas -->
+                        <path d="M30,205 L13,240" stroke="#CCCCCC" stroke-width="2" class="rocket-bottom"/>
+                        <path d="M130,205 L147,240" stroke="#CCCCCC" stroke-width="2" class="rocket-bottom"/>
+                        <rect x="25" y="212" width="12" height="3" fill="#CCCCCC" rx="1" class="rocket-bottom"/>
+                        <rect x="123" y="212" width="12" height="3" fill="#CCCCCC" rx="1" class="rocket-bottom"/>
+                        
+                        <!-- Listras decorativas inferiores -->
+                        <rect x="40" y="140" width="80" height="8" fill="#CCCCCC" rx="4" class="rocket-bottom"/>
+                        <rect x="40" y="185" width="80" height="8" fill="#CCCCCC" rx="4" class="rocket-bottom"/>
+                        
+                        <!-- Painéis solares laterais -->
+                        <rect x="12" y="165" width="23" height="35" fill="#999999" stroke="#333333" stroke-width="2" rx="4" class="rocket-bottom"/>
+                        <rect x="125" y="165" width="23" height="35" fill="#999999" stroke="#333333" stroke-width="2" rx="4" class="rocket-bottom"/>
+                        
+                        <!-- Grid dos painéis solares -->
+                        <g stroke="#CCCCCC" stroke-width="0.8">
+                            <path d="M15,170 L32,170 M15,175 L32,175 M15,180 L32,180 M15,185 L32,185 M15,190 L32,190 M15,195 L32,195"/>
+                            <path d="M18,167 L18,197 M22,167 L22,197 M26,167 L26,197 M30,167 L30,197"/>
+                            <path d="M128,170 L145,170 M128,175 L145,175 M128,180 L145,180 M128,185 L145,185 M128,190 L145,190 M128,195 L145,195"/>
+                            <path d="M131,167 L131,197 M135,167 L135,197 M139,167 L139,197 M143,167 L143,197"/>
+                        </g>
+                        
+                        <!-- Número da missão -->
+                        <circle cx="80" cy="195" r="12" fill="#FFFFFF" class="rocket-bottom"/>
+                        <text x="80" y="199" font-family="Arial, sans-serif" font-size="10" fill="#333333" font-weight="bold" text-anchor="middle">X1</text>
+                        
+                        <!-- Rebites e detalhes metálicos inferiores -->
+                        <g fill="#999999">
+                            <circle cx="42" cy="150" r="1.5" class="rocket-bottom"/>
+                            <circle cx="118" cy="150" r="1.5" class="rocket-bottom"/>
+                            <circle cx="42" cy="175" r="1.5" class="rocket-bottom"/>
+                            <circle cx="118" cy="175" r="1.5" class="rocket-bottom"/>
+                        </g>
+                        
+                        <!-- ===== JANELA DO FOGUETE ===== -->
+                        <!-- Janela principal -->
+                        <circle cx="80" cy="110" r="28" fill="#F0F0F0" stroke="#333333" stroke-width="4" class="rocket-window"/>
+                        <circle cx="80" cy="110" r="24" fill="#FFFFFF" opacity="0.3" class="rocket-window"/>
+                        <circle cx="72" cy="102" r="15" fill="#F8F8F8" opacity="0.5" class="rocket-window"/>
+                        <circle cx="68" cy="98" r="8" fill="#FFFFFF" class="rocket-window"/>
+                        
+                        <!-- Janelas secundárias -->
+                        <circle cx="58" cy="130" r="10" fill="#F0F0F0" stroke="#333333" stroke-width="2" class="rocket-window"/>
+                        <circle cx="102" cy="130" r="10" fill="#F0F0F0" stroke="#333333" stroke-width="2" class="rocket-window"/>
+                        <circle cx="54" cy="126" r="4" fill="#FFFFFF" class="rocket-window"/>
+                        <circle cx="106" cy="126" r="4" fill="#FFFFFF" class="rocket-window"/>
+                        
+                        <!-- ===== CORPO SUPERIOR DO FOGUETE ===== -->
+                        <!-- Corpo superior -->
+                        <ellipse cx="80" cy="75" rx="45" ry="45" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="rocket-top"/>
+                        
+                        <!-- Reflexo metálico superior -->
+                        <ellipse cx="65" cy="70" rx="15" ry="35" fill="#CCCCCC" opacity="0.4" class="rocket-top"/>
+                        
+                        <!-- Painel técnico superior -->
+                        <rect x="35" y="70" width="90" height="15" fill="#DDDDDD" stroke="#333333" stroke-width="2" rx="8" class="rocket-top"/>
+                        <rect x="42" y="74" width="12" height="7" fill="#CCCCCC" rx="2"/>
+                        <rect x="58" y="74" width="12" height="7" fill="#CCCCCC" rx="2"/>
+                        <rect x="74" y="74" width="12" height="7" fill="#CCCCCC" rx="2"/>
+                        <rect x="90" y="74" width="12" height="7" fill="#CCCCCC" rx="2"/>
+                        <rect x="106" y="74" width="12" height="7" fill="#CCCCCC" rx="2"/>
+                        
+                        <!-- Detalhes LED -->
+                        <circle cx="48" cy="77.5" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="64" cy="77.5" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="80" cy="77.5" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="96" cy="77.5" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="112" cy="77.5" r="1.5" fill="#FFFFFF"/>
+                        
+                        <!-- Listras decorativas superiores -->
+                        <rect x="40" y="95" width="80" height="8" fill="#CCCCCC" rx="4" class="rocket-top"/>
+                        
+                        <!-- Ponta do foguete -->
+                        <path d="M35,85 Q80,15 125,85 L125,115 L35,115 Z" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="rocket-top"/>
+                        
+                        <!-- Detalhes na ponta -->
+                        <path d="M45,90 Q80,30 115,90" stroke="#CCCCCC" stroke-width="2" fill="none" class="rocket-top"/>
+                        <circle cx="80" cy="65" r="6" fill="#CCCCCC" class="rocket-top"/>
+                        <circle cx="80" cy="65" r="3" fill="#FFFFFF" class="rocket-top"/>
+
+                        <!-- Sombreamento superior (aparece quando pintado) -->
+                        <ellipse cx="80" cy="80" rx="50" ry="50" fill="url(#rocketTopShadowGrad)" opacity="0" class="rocket-top-shading" pointer-events="none"/>
+                        <path d="M35,85 Q80,15 125,85 L125,115 L35,115 Z" fill="url(#rocketTopShadowGrad)" opacity="0" class="rocket-top-shading" pointer-events="none"/>
+                        
+                        <!-- Antenas e equipamentos -->
+                        <rect x="42" y="45" width="4" height="25" fill="#666666" stroke="#333333" stroke-width="1" rx="2" class="rocket-top"/>
+                        <rect x="114" y="45" width="4" height="25" fill="#666666" stroke="#333333" stroke-width="1" rx="2" class="rocket-top"/>
+                        <circle cx="44" cy="42" r="3" fill="#CCCCCC" class="rocket-top"/>
+                        <circle cx="116" cy="42" r="3" fill="#CCCCCC" class="rocket-top"/>
+                        
+                        <!-- Logotipo NASA -->
+                        <ellipse cx="80" cy="50" rx="18" ry="6" fill="#FFFFFF" class="rocket-top"/>
+                        <text x="80" y="53" font-family="Arial, sans-serif" font-size="8" fill="#333333" font-weight="bold" text-anchor="middle">NASA</text>
+                        
+                        <!-- Rebites e detalhes metálicos superiores -->
+                        <g fill="#999999">
+                            <circle cx="42" cy="105" r="1.5" class="rocket-top"/>
+                            <circle cx="118" cy="105" r="1.5" class="rocket-top"/>
+                            <circle cx="42" cy="125" r="1.5" class="rocket-top"/>
+                            <circle cx="118" cy="125" r="1.5" class="rocket-top"/>
+                        </g>
+                        
+                        <!-- ===== CHAMAS DO FOGUETE ===== -->
+                        <path d="M52,224 Q58,268 48,285 Q68,245 80,295 Q92,245 112,285 Q102,268 108,224" fill="#E8E8E8" stroke="#333333" stroke-width="2" class="rocket-flames"/>
+                        <path d="M55,228 Q62,260 52,278 Q72,248 80,285 Q88,248 108,278 Q98,260 105,228" fill="#CCCCCC" class="rocket-flames"/>
+                        <path d="M58,232 Q65,252 58,270 Q75,252 80,278 Q85,252 102,270 Q95,252 102,232" fill="#DDDDDD" class="rocket-flames"/>
+                        <path d="M62,236 Q68,248 62,265 Q76,250 80,270 Q84,250 98,265 Q92,248 98,236" fill="#F0F0F0" class="rocket-flames"/>
+                    </g>
+                    
+                    <!-- ===== ASTRONAUTA ===== -->
+                    <g transform="translate(480, 200)">
+                        
+                        <!-- ===== MOCHILA DE SUPORTE À VIDA ===== -->
+                        <rect x="75" y="90" width="20" height="45" fill="#DDDDDD" stroke="#333333" stroke-width="3" rx="10" class="astronaut-torso"/>
+                        <rect x="78" y="95" width="14" height="8" fill="#666666" stroke="#333333" stroke-width="1" rx="2"/>
+                        <circle cx="82" cy="105" r="2" fill="#CCCCCC"/>
+                        <circle cx="88" cy="105" r="2" fill="#CCCCCC"/>
+                        
+                        <!-- ===== CABEÇA/CAPACETE ===== -->
+                        <!-- Capacete principal -->
+                        <circle cx="50" cy="50" r="40" fill="#F0F0F0" stroke="#333333" stroke-width="4" class="astronaut-head"/>
+                        
+                        <!-- Reflexo do capacete -->
+                        <circle cx="45" cy="40" r="18" fill="#FFFFFF" opacity="0.3" class="astronaut-head"/>
+                        <circle cx="42" cy="37" r="8" fill="#FFFFFF" opacity="0.5" class="astronaut-head"/>
+                        
+                        <!-- Sistema de ventilação -->
+                        <rect x="35" y="75" width="30" height="6" fill="#DDDDDD" stroke="#333333" stroke-width="2" rx="3" class="astronaut-head"/>
+                        <rect x="38" y="76" width="4" height="4" fill="#666666" rx="1"/>
+                        <rect x="44" y="76" width="4" height="4" fill="#666666" rx="1"/>
+                        <rect x="50" y="76" width="4" height="4" fill="#666666" rx="1"/>
+                        <rect x="56" y="76" width="4" height="4" fill="#666666" rx="1"/>
+                        
+                        <!-- Rosto -->
+                        <circle cx="42" cy="42" r="3" fill="black"/>
+                        <circle cx="58" cy="42" r="3" fill="black"/>
+                        <circle cx="43" cy="41" r="1" fill="#FFFFFF"/>
+                        <circle cx="59" cy="41" r="1" fill="#FFFFFF"/>
+                        <path d="M38,60 Q50,68 62,60" stroke="black" stroke-width="3" fill="none"/>
+                        <circle cx="50" cy="48" r="1" fill="black"/>
+                        
+                        <!-- Antena de comunicação -->
+                        <rect x="75" y="30" width="4" height="20" fill="#999999" stroke="#333333" stroke-width="1" rx="2" class="astronaut-head"/>
+                        <circle cx="77" cy="26" r="3" fill="#CCCCCC" class="astronaut-head"/>
+                        <circle cx="77" cy="26" r="2" fill="#DDDDDD" class="astronaut-head"/>
+                        <circle cx="76" cy="25" r="1" fill="#FFFFFF"/>
+                        
+                        <!-- Luzes na antena -->
+                        <circle cx="77" cy="35" r="1.5" fill="#CCCCCC"/>
+                        <circle cx="77" cy="40" r="1.5" fill="#CCCCCC"/>
+                        
+                        <!-- Sistema de ar adicional -->
+                        <rect x="58" y="88" width="25" height="8" fill="#999999" stroke="#333333" stroke-width="2" rx="4" class="astronaut-head"/>
+                        <circle cx="62" cy="92" r="2" fill="#666666"/>
+                        <circle cx="68" cy="92" r="2" fill="#666666"/>
+                        <circle cx="74" cy="92" r="2" fill="#666666"/>
+                        <circle cx="80" cy="92" r="2" fill="#666666"/>
+                        
+                        <!-- ===== TORSO E BRAÇOS ===== -->
+                        <!-- Corpo do traje espacial -->
+                        <rect x="25" y="90" width="50" height="70" rx="25" fill="#E8E8E8" stroke="#333333" stroke-width="4" class="astronaut-torso"/>
+                        
+                        <!-- Painel de controle no peito -->
+                        <rect x="32" y="105" width="36" height="24" fill="#999999" stroke="#333333" stroke-width="3" rx="4" class="astronaut-torso"/>
+                        
+                        <!-- Tela do painel -->
+                        <rect x="35" y="108" width="30" height="12" fill="#666666" stroke="#333333" stroke-width="1" rx="2" class="astronaut-torso"/>
+                        <rect x="37" y="110" width="26" height="3" fill="#CCCCCC"/>
+                        <rect x="37" y="114" width="18" height="2" fill="#CCCCCC"/>
+                        
+                        <!-- Botões de controle -->
+                        <circle cx="40" cy="125" r="3" fill="#CCCCCC" class="astronaut-torso"/>
+                        <circle cx="50" cy="125" r="3" fill="#CCCCCC" class="astronaut-torso"/>
+                        <circle cx="60" cy="125" r="3" fill="#CCCCCC" class="astronaut-torso"/>
+                        
+                        <!-- Braços do traje -->
+                        <ellipse cx="15" cy="110" rx="10" ry="30" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="astronaut-torso"/>
+                        <ellipse cx="85" cy="110" rx="10" ry="30" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="astronaut-torso"/>
+                        
+                        <!-- Articulações dos braços -->
+                        <circle cx="12" cy="105" r="8" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-torso"/>
+                        <circle cx="88" cy="105" r="8" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-torso"/>
+                        <circle cx="12" cy="145" r="8" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-torso"/>
+                        <circle cx="88" cy="145" r="8" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-torso"/>
+                        
+                        <!-- Detalhes nas articulações -->
+                        <circle cx="12" cy="105" r="4" fill="#999999" class="astronaut-torso"/>
+                        <circle cx="88" cy="105" r="4" fill="#999999" class="astronaut-torso"/>
+                        <circle cx="12" cy="145" r="4" fill="#999999" class="astronaut-torso"/>
+                        <circle cx="88" cy="145" r="4" fill="#999999" class="astronaut-torso"/>
+                        
+                        <!-- Luvas espaciais -->
+                        <circle cx="12" cy="162" r="15" fill="#F0F0F0" stroke="#333333" stroke-width="3" class="astronaut-torso"/>
+                        <circle cx="88" cy="162" r="15" fill="#F0F0F0" stroke="#333333" stroke-width="3" class="astronaut-torso"/>
+                        
+                        <!-- Detalhes das luvas -->
+                        <circle cx="12" cy="162" r="10" fill="#F8F8F8" class="astronaut-torso"/>
+                        <circle cx="88" cy="162" r="10" fill="#F8F8F8" class="astronaut-torso"/>
+                        <circle cx="12" cy="162" r="6" fill="#FFFFFF" class="astronaut-torso"/>
+                        <circle cx="88" cy="162" r="6" fill="#FFFFFF" class="astronaut-torso"/>
+                        
+                        <!-- Controles nas luvas -->
+                        <rect x="8" y="155" width="8" height="4" fill="#999999" rx="2" class="astronaut-torso"/>
+                        <rect x="84" y="155" width="8" height="4" fill="#999999" rx="2" class="astronaut-torso"/>
+                        <circle cx="10" cy="157" r="1" fill="#CCCCCC"/>
+                        <circle cx="14" cy="157" r="1" fill="#CCCCCC"/>
+                        <circle cx="86" cy="157" r="1" fill="#CCCCCC"/>
+                        <circle cx="90" cy="157" r="1" fill="#CCCCCC"/>
+                        
+                        <!-- Cinturão de ferramentas -->
+                        <rect x="25" y="175" width="50" height="10" fill="#555555" stroke="#333333" stroke-width="2" rx="5" class="astronaut-torso"/>
+                        <rect x="28" y="177" width="8" height="6" fill="#CCCCCC" rx="2"/>
+                        <rect x="38" y="177" width="8" height="6" fill="#CCCCCC" rx="2"/>
+                        <rect x="48" y="177" width="8" height="6" fill="#CCCCCC" rx="2"/>
+                        <rect x="58" y="177" width="8" height="6" fill="#CCCCCC" rx="2"/>
+                        <rect x="68" y="177" width="6" height="6" fill="#CCCCCC" rx="2"/>
+                        
+                        <!-- Brilho nas ferramentas -->
+                        <circle cx="32" cy="179" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="42" cy="179" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="52" cy="179" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="62" cy="179" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="71" cy="179" r="1.5" fill="#FFFFFF"/>
+                        
+                        <!-- Tubulação de oxigênio -->
+                        <path d="M2,130 Q-18,135 -15,145 Q2,155 8,150 Q15,145 12,135" stroke="#CCCCCC" stroke-width="5" fill="none"/>
+                        <circle cx="5" cy="135" r="3" fill="#DDDDDD" stroke="#333333" stroke-width="1"/>
+                        <circle cx="8" cy="145" r="3" fill="#DDDDDD" stroke="#333333" stroke-width="1"/>
+                        
+                        <!-- Mangueiras auxiliares -->
+                        <path d="M22,110 Q12,115 15,125" stroke="#666666" stroke-width="3" fill="none"/>
+                        <path d="M78,110 Q88,115 85,125" stroke="#666666" stroke-width="3" fill="none"/>
+                        
+                        <!-- Patch da missão -->
+                        <circle cx="42" cy="155" r="8" fill="#CCCCCC" stroke="#333333" stroke-width="1" class="astronaut-torso"/>
+                        <text x="42" y="158" font-family="Arial, sans-serif" font-size="5" fill="#333333" font-weight="bold" text-anchor="middle">EVA</text>
+                        
+                        <!-- Bandeira dos EUA -->
+                        <rect x="52" y="150" width="16" height="10" fill="#FFFFFF" stroke="#333333" stroke-width="1" rx="2" class="astronaut-torso"/>
+                        <rect x="52" y="150" width="6" height="10" fill="#CCCCCC" rx="2" class="astronaut-torso"/>
+                        <g stroke="#BBBBBB" stroke-width="0.8">
+                            <path d="M58,152 L68,152 M58,154 L68,154 M58,156 L68,156 M58,158 L68,158"/>
+                        </g>
+                        
+                        <!-- Estrelas na bandeira -->
+                        <g fill="#FFFFFF">
+                            <circle cx="54" cy="153" r="0.5"/>
+                            <circle cx="56" cy="153" r="0.5"/>
+                            <circle cx="54" cy="155" r="0.5"/>
+                            <circle cx="56" cy="155" r="0.5"/>
+                            <circle cx="54" cy="157" r="0.5"/>
+                            <circle cx="56" cy="157" r="0.5"/>
+                        </g>
+                        
+                        <!-- Reguladores de pressão -->
+                        <circle cx="28" cy="165" r="5" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-torso"/>
+                        <circle cx="72" cy="165" r="5" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-torso"/>
+                        <circle cx="28" cy="165" r="3" fill="#999999"/>
+                        <circle cx="72" cy="165" r="3" fill="#999999"/>
+                        <text x="28" y="167" font-family="Arial, sans-serif" font-size="3" fill="#333333" text-anchor="middle">O₂</text>
+                        <text x="72" y="167" font-family="Arial, sans-serif" font-size="3" fill="#333333" text-anchor="middle">N₂</text>
+                        
+                        <!-- ===== PERNAS ===== -->
+                        <!-- Pernas do traje -->
+                        <ellipse cx="35" cy="210" rx="12" ry="40" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="astronaut-legs"/>
+                        <ellipse cx="65" cy="210" rx="12" ry="40" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="astronaut-legs"/>
+                        
+                        <!-- Reflexos nas pernas -->
+                        <ellipse cx="32" cy="205" rx="4" ry="30" fill="#DDDDDD" class="astronaut-legs"/>
+                        <ellipse cx="68" cy="205" rx="4" ry="30" fill="#DDDDDD" class="astronaut-legs"/>
+                        
+                        <!-- Joelheiras -->
+                        <circle cx="35" cy="195" r="10" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-legs"/>
+                        <circle cx="65" cy="195" r="10" fill="#DDDDDD" stroke="#333333" stroke-width="2" class="astronaut-legs"/>
+                        
+                        <!-- Detalhes das joelheiras -->
+                        <circle cx="35" cy="195" r="6" fill="#999999" class="astronaut-legs"/>
+                        <circle cx="65" cy="195" r="6" fill="#999999" class="astronaut-legs"/>
+                        <circle cx="35" cy="195" r="3" fill="#BBBBBB" class="astronaut-legs"/>
+                        <circle cx="65" cy="195" r="3" fill="#BBBBBB" class="astronaut-legs"/>
+                        
+                        <!-- Botas espaciais -->
+                        <ellipse cx="35" cy="248" rx="18" ry="12" fill="#DDDDDD" stroke="#333333" stroke-width="3" class="astronaut-legs"/>
+                        <ellipse cx="65" cy="248" rx="18" ry="12" fill="#DDDDDD" stroke="#333333" stroke-width="3" class="astronaut-legs"/>
+                        
+                        <!-- Solas antiderrapantes -->
+                        <ellipse cx="35" cy="252" rx="16" ry="8" fill="#555555" stroke="#333333" stroke-width="2" class="astronaut-legs"/>
+                        <ellipse cx="65" cy="252" rx="16" ry="8" fill="#555555" stroke="#333333" stroke-width="2" class="astronaut-legs"/>
+                        
+                        <!-- Padrão antiderrapante -->
+                        <g fill="#777777">
+                            <circle cx="28" cy="252" r="1"/>
+                            <circle cx="35" cy="252" r="1"/>
+                            <circle cx="42" cy="252" r="1"/>
+                            <circle cx="58" cy="252" r="1"/>
+                            <circle cx="65" cy="252" r="1"/>
+                            <circle cx="72" cy="252" r="1"/>
+                            <circle cx="31" cy="248" r="0.8"/>
+                            <circle cx="39" cy="248" r="0.8"/>
+                            <circle cx="61" cy="248" r="0.8"/>
+                            <circle cx="69" cy="248" r="0.8"/>
+                        </g>
+                        
+                        <!-- Fivelas das botas -->
+                        <rect x="28" y="242" width="14" height="5" fill="#999999" stroke="#333333" stroke-width="1" rx="2" class="astronaut-legs"/>
+                        <rect x="58" y="242" width="14" height="5" fill="#999999" stroke="#333333" stroke-width="1" rx="2" class="astronaut-legs"/>
+                        
+                        <!-- Detalhes das fivelas -->
+                        <circle cx="30" cy="244.5" r="1" fill="#BBBBBB"/>
+                        <circle cx="35" cy="244.5" r="1" fill="#BBBBBB"/>
+                        <circle cx="40" cy="244.5" r="1" fill="#BBBBBB"/>
+                        <circle cx="60" cy="244.5" r="1" fill="#BBBBBB"/>
+                        <circle cx="65" cy="244.5" r="1" fill="#BBBBBB"/>
+                        <circle cx="70" cy="244.5" r="1" fill="#BBBBBB"/>
+                    </g>
+                    
+                    <!-- ===== ESTRELAS PEQUENAS ===== -->
+                    <circle cx="320" cy="60" r="2" fill="#FFFFFF"/>
+                    <circle cx="560" cy="100" r="2" fill="#FFFFFF"/>
+                    <circle cx="400" cy="45" r="2" fill="#FFFFFF"/>
+                    <circle cx="240" cy="450" r="2" fill="#FFFFFF"/>
+                    <circle cx="640" cy="450" r="2" fill="#FFFFFF"/>
+                    <circle cx="180" cy="300" r="1.5" fill="#FFFFFF"/>
+                    <circle cx="700" cy="350" r="1.5" fill="#FFFFFF"/>
+                    <circle cx="300" cy="520" r="1.5" fill="#FFFFFF"/>
+                    <circle cx="500" cy="530" r="1.5" fill="#FFFFFF"/>
+                </svg>
+                
+                <!-- ===== TEXTOS DOS CÁLCULOS ===== -->
+                <!-- Linhas de conexão -->
+                <div class="sum-text-line planet-calc-line"></div>
+                <div class="sum-text-line sun-calc-line"></div>
+                <div class="sum-text-line rocket-top-calc-line"></div>
+                <div class="sum-text-line rocket-window-calc-line"></div>
+                <div class="sum-text-line rocket-bottom-calc-line"></div>
+                <div class="sum-text-line rocket-flame-calc-line"></div>
+                <div class="sum-text-line astronaut-head-calc-line"></div>
+                <div class="sum-text-line astronaut-torso-calc-line"></div>
+                <div class="sum-text-line astronaut-legs-calc-line"></div>
+                
+                <!-- Caixas de texto dos cálculos -->
+                <div class="sum-text planet-calc" id="planetSumText">4 + 2</div>
+                <div class="sum-text sun-calc" id="sunSumText">8 + 3</div>
+                <div class="sum-text rocket-top-calc" id="rocketTopSumText">5 + 3</div>
+                <div class="sum-text rocket-window-calc" id="rocketWindowSumText">3 + 4</div>
+                <div class="sum-text rocket-bottom-calc" id="rocketBottomSumText">6 + 2</div>
+                <div class="sum-text rocket-flame-calc" id="rocketFlameSumText">7 + 4</div>
+                <div class="sum-text astronaut-head-calc" id="astronautHeadSumText">2 + 6</div>
+                <div class="sum-text astronaut-torso-calc" id="astronautTorsoSumText">5 + 2</div>
+                <div class="sum-text astronaut-legs-calc" id="astronautLegsSumText">4 + 5</div>
+            </div>
+        </div>
+
+        <!-- ===== SEÇÃO DE CONTROLES ===== -->
+        <div class="controls">
+            
+            <!-- ===== SELEÇÃO DE DIFICULDADE ===== -->
+            <div class="difficulty-container">
+                <label class="difficulty-label" for="difficultySelect">Nível:</label>
+                <select id="difficultySelect" class="difficulty-select">
+                    <option value="facil">Adição</option>
+                    <option value="medio">Adição e Subtração</option>
+                    <option value="dificil">Adição, Subtração e Multiplicação</option>
+                </select>
+            </div>
+            
+            <!-- ===== SELEÇÃO DE CORES ===== -->
+            <div class="numbers-container">
+                <div class="numbers-title">🎯 Escolha a cor do resultado:</div>
+                <div class="color-options" id="colorOptions">
+                    <!-- Opções serão geradas pelo JavaScript -->
+                </div>
+            </div>
+            
+            <!-- ===== BOTÃO NOVO JOGO ===== -->
+            <button class="new-game-btn" onclick="gameController.newGame()">🆕 Novo Jogo</button>
+        </div>
+    </div>
+
+    <!-- ===== SEÇÃO DE FEEDBACK ===== -->
+    <div class="feedback" id="feedback"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1017 @@
+/* ============================================================================
+   CONFIGURAÇÕES DO JOGO
+   ============================================================================ */
+const GAME_CONFIG = {
+    colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'],
+    maxNumber: 18,
+    minNumber: 4,
+    feedbackDuration: 3000,
+    animationDuration: 800,
+    clickAreas: {
+        planet: { x: [30, 170], y: [30, 170] },
+        sun: { x: [580, 780], y: [20, 140] },
+        'rocket-top': { x: [120, 320], y: [150, 235] },
+        'rocket-window': { x: [190, 270], y: [235, 285] },
+        'rocket-bottom': { x: [120, 320], y: [285, 375] },
+        'rocket-flame': { x: [165, 275], y: [372, 435] },
+        'astronaut-head': { x: [480, 580], y: [200, 290] },
+        'astronaut-torso': { x: [480, 580], y: [290, 375] },
+        'astronaut-legs': { x: [480, 580], y: [375, 460] }
+    },
+    areaNames: {
+        'planet': 'planeta',
+        'sun': 'sol',
+        'rocket-top': 'topo do foguete',
+        'rocket-window': 'janela do foguete',
+        'rocket-bottom': 'base do foguete',
+        'rocket-flame': 'chamas do foguete',
+        'astronaut-head': 'cabeça do astronauta',
+        'astronaut-torso': 'torso do astronauta',
+        'astronaut-legs': 'pernas do astronauta'
+    }
+};
+
+/* ============================================================================
+   UTILITÁRIOS PARA RESPONSIVIDADE
+   ============================================================================ */
+class ResponsiveUtils {
+    static isMobile() {
+        return window.innerWidth <= 767;
+    }
+    
+    static isTablet() {
+        return window.innerWidth > 767 && window.innerWidth <= 1199;
+    }
+    
+    static isDesktop() {
+        return window.innerWidth >= 1200;
+    }
+    
+    static getScreenSize() {
+        if (this.isMobile()) return 'mobile';
+        if (this.isTablet()) return 'tablet';
+        return 'desktop';
+    }
+    
+    static getTextScale() {
+        const screenSize = this.getScreenSize();
+        const scales = {
+            'mobile': 0.7,
+            'tablet': 0.85,
+            'desktop': 1.0
+        };
+        return scales[screenSize] || 1.0;
+    }
+    
+    static debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+}
+
+/* ============================================================================
+   CLASSE PARA GERENCIAR O ESTADO DO JOGO
+   ============================================================================ */
+class GameState {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.calculations = {
+            planet: 0,
+            sun: 0,
+            rocketTop: 0,
+            rocketWindow: 0,
+            rocketBottom: 0,
+            rocketFlame: 0,
+            astronautHead: 0,
+            astronautTorso: 0,
+            astronautLegs: 0
+        };
+        this.selectedColor = null;
+        this.selectedNumber = null;
+        this.gameNumbers = [];
+        this.paintedAreas = new Set();
+        this.usedNumbers = new Set();
+        this.difficulty = 'facil';
+    }
+
+    setCalculation(area, value) {
+        this.calculations[area] = value;
+    }
+
+    getCalculation(area) {
+        return this.calculations[area];
+    }
+
+    setSelectedColor(color) {
+        this.selectedColor = color;
+    }
+
+    getSelectedColor() {
+        return this.selectedColor;
+    }
+
+    setSelectedNumber(number) {
+        this.selectedNumber = number;
+    }
+
+    getSelectedNumber() {
+        return this.selectedNumber;
+    }
+
+    setGameNumbers(numbers) {
+        this.gameNumbers = numbers;
+    }
+
+    getGameNumbers() {
+        return this.gameNumbers;
+    }
+
+    addPaintedArea(area) {
+        this.paintedAreas.add(area);
+    }
+
+    isPainted(area) {
+        return this.paintedAreas.has(area);
+    }
+
+    addUsedNumber(number) {
+        this.usedNumbers.add(number);
+    }
+
+    isNumberUsed(number) {
+        return this.usedNumbers.has(number);
+    }
+
+    isGameComplete() {
+        return this.paintedAreas.size === 9;
+    }
+
+    setDifficulty(level) {
+        this.difficulty = level;
+    }
+
+    getDifficulty() {
+        return this.difficulty;
+    }
+}
+
+/* ============================================================================
+   CLASSE PARA GERENCIAR A INTERFACE DO USUÁRIO
+   ============================================================================ */
+class UIManager {
+    /* ===== FEEDBACK E MENSAGENS ===== */
+    static showFeedback(message, type) {
+        const feedback = document.getElementById('feedback');
+        feedback.textContent = message;
+        feedback.className = `feedback ${type} show`;
+
+        setTimeout(() => {
+            feedback.classList.remove('show');
+        }, GAME_CONFIG.feedbackDuration);
+    }
+
+    /* ===== GERENCIAMENTO DOS TEXTOS DE CÁLCULO ===== */
+    static updateCalculationText(area, text) {
+        const elementId = this.getCalculationTextId(area);
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = text;
+            this.adjustTextPosition(element, area);
+        }
+    }
+
+    static adjustTextPosition(element, area) {
+        const screenSize = ResponsiveUtils.getScreenSize();
+        const scale = ResponsiveUtils.getTextScale();
+        
+        // Ajustar tamanho da fonte baseado no dispositivo
+        const baseSizes = {
+            'planet': 16,
+            'sun': 14,
+            'rocket-top': 12,
+            'rocket-window': 12,
+            'rocket-bottom': 12,
+            'rocket-flame': 12,
+            'astronaut-head': 13,
+            'astronaut-torso': 12,
+            'astronaut-legs': 12
+        };
+        
+        const baseSize = baseSizes[area] || 12;
+        const adjustedSize = Math.max(8, Math.floor(baseSize * scale));
+        element.style.fontSize = `${adjustedSize}px`;
+        
+        // Ajustar padding baseado no tamanho da fonte
+        const padding = Math.max(2, Math.floor(4 * scale));
+        element.style.padding = `${padding}px ${padding * 2}px`;
+    }
+
+    static hideCalculationText(area) {
+        const elementId = this.getCalculationTextId(area);
+        const element = document.getElementById(elementId);
+        if (element) {
+            // Usar transição suave para esconder a caixa de cálculo
+            element.style.opacity = '0';
+            element.style.transform = 'scale(0.8)';
+            
+            // Remover completamente após a transição
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 300);
+        }
+        
+        // Esconder também a linha correspondente
+        this.hideCalculationLine(area);
+    }
+    
+    static hideCalculationLine(area) {
+        const lineMapping = {
+            planet: 'planet-calc-line',
+            sun: 'sun-calc-line',
+            rocketTop: 'rocket-top-calc-line',
+            rocketWindow: 'rocket-window-calc-line',
+            rocketBottom: 'rocket-bottom-calc-line',
+            rocketFlame: 'rocket-flame-calc-line',
+            astronautHead: 'astronaut-head-calc-line',
+            astronautTorso: 'astronaut-torso-calc-line',
+            astronautLegs: 'astronaut-legs-calc-line'
+        };
+        
+        const lineClass = lineMapping[area];
+        if (lineClass) {
+            const lineElement = document.querySelector(`.${lineClass}`);
+            if (lineElement) {
+                // Usar transição suave para esconder a linha
+                lineElement.style.opacity = '0';
+                lineElement.style.transform = 'scale(0.8)';
+                
+                // Remover completamente após a transição
+                setTimeout(() => {
+                    lineElement.style.display = 'none';
+                }, 300);
+            }
+        }
+    }
+
+    static showAllCalculationTexts() {
+        const textElements = document.querySelectorAll('.sum-text');
+        textElements.forEach(element => {
+            // Resetar todas as propriedades de transição
+            element.classList.remove('hidden');
+            element.style.opacity = '';
+            element.style.transform = '';
+            
+            // Ajustar posição baseado no dispositivo atual
+            const area = this.getElementArea(element);
+            if (area) {
+                this.adjustTextPosition(element, area);
+            }
+        });
+        
+        // Mostrar todas as linhas novamente
+        this.showAllCalculationLines();
+    }
+    
+    static getElementArea(element) {
+        const classList = element.className;
+        if (classList.includes('planet-calc')) return 'planet';
+        if (classList.includes('sun-calc')) return 'sun';
+        if (classList.includes('rocket-top-calc')) return 'rocket-top';
+        if (classList.includes('rocket-window-calc')) return 'rocket-window';
+        if (classList.includes('rocket-bottom-calc')) return 'rocket-bottom';
+        if (classList.includes('rocket-flame-calc')) return 'rocket-flame';
+        if (classList.includes('astronaut-head-calc')) return 'astronaut-head';
+        if (classList.includes('astronaut-torso-calc')) return 'astronaut-torso';
+        if (classList.includes('astronaut-legs-calc')) return 'astronaut-legs';
+        return null;
+    }
+    
+    static showAllCalculationLines() {
+        const lineClasses = [
+            'planet-calc-line',
+            'sun-calc-line',
+            'rocket-top-calc-line',
+            'rocket-window-calc-line',
+            'rocket-bottom-calc-line',
+            'rocket-flame-calc-line',
+            'astronaut-head-calc-line',
+            'astronaut-torso-calc-line',
+            'astronaut-legs-calc-line'
+        ];
+        
+        lineClasses.forEach(lineClass => {
+            const lineElement = document.querySelector(`.${lineClass}`);
+            if (lineElement) {
+                // Resetar todas as propriedades de transição
+                lineElement.style.display = '';
+                lineElement.style.opacity = '';
+                lineElement.style.transform = '';
+            }
+        });
+    }
+
+    static getCalculationTextId(area) {
+        const mapping = {
+            planet: 'planetSumText',
+            sun: 'sunSumText',
+            rocketTop: 'rocketTopSumText',
+            rocketWindow: 'rocketWindowSumText',
+            rocketBottom: 'rocketBottomSumText',
+            rocketFlame: 'rocketFlameSumText',
+            astronautHead: 'astronautHeadSumText',
+            astronautTorso: 'astronautTorsoSumText',
+            astronautLegs: 'astronautLegsSumText'
+        };
+        return mapping[area];
+    }
+
+    /* ===== GERENCIAMENTO DAS OPÇÕES DE COR ===== */
+    static createColorOptions(gameNumbers, colors) {
+        const container = document.getElementById('colorOptions');
+        container.innerHTML = '';
+
+        gameNumbers.forEach((number, index) => {
+            const option = document.createElement('div');
+            option.className = 'color-option';
+            
+            // Usar touchstart para melhor resposta em dispositivos móveis
+            if (ResponsiveUtils.isMobile()) {
+                option.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    gameController.selectColor(option, colors[index], number);
+                });
+            } else {
+                option.onclick = () => gameController.selectColor(option, colors[index], number);
+            }
+
+            option.innerHTML = `
+                <span class="number">${number}</span>
+                <div class="color-circle" style="background-color: ${colors[index]}"></div>
+            `;
+
+            container.appendChild(option);
+        });
+    }
+
+    static clearColorSelection() {
+        document.querySelectorAll('.color-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+    }
+
+    static selectColorOption(element) {
+        this.clearColorSelection();
+        element.classList.add('selected');
+    }
+
+    static markColorAsUsed(number) {
+        const options = document.querySelectorAll('.color-option');
+        options.forEach(option => {
+            const optionNumber = parseInt(option.querySelector('.number').textContent);
+            if (optionNumber === number) {
+                option.classList.add('used');
+            }
+        });
+    }
+
+    static resetColorOptions() {
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.style.opacity = '1';
+            option.style.pointerEvents = 'auto';
+            option.classList.remove('selected', 'used');
+        });
+    }
+
+    /* ===== ANIMAÇÕES E EFEITOS VISUAIS ===== */
+    static addSuccessAnimation() {
+        const rocket = document.getElementById('rocket');
+        rocket.classList.add('success');
+        setTimeout(() => rocket.classList.remove('success'), GAME_CONFIG.animationDuration);
+    }
+}
+
+/* ============================================================================
+   CLASSE PARA GERENCIAR AS CORES DOS ELEMENTOS
+   ============================================================================ */
+class ColorManager {
+    static updateElementColor(elementType, color) {
+        const svg = document.querySelector('.rocket svg');
+        const elements = this.getElementsForType(svg, elementType);
+        
+        elements.forEach(el => {
+            if (el.getAttribute('fill') !== 'black' && 
+                el.getAttribute('fill') !== '#FFFFFF' && 
+                el.getAttribute('fill') !== '#333333' &&
+                el.getAttribute('fill') !== '#666666' &&
+                el.getAttribute('fill') !== '#555555' &&
+                el.getAttribute('fill') !== '#777777') {
+                el.style.fill = color;
+            }
+            
+            // Para o sol, também colorir os raios (stroke)
+            if (elementType === 'sun' && (el.classList.contains('sun-rays') || el.classList.contains('sun-main'))) {
+                el.style.stroke = color;
+            }
+            
+            // Para o planeta, colorir o contorno também
+            if (elementType === 'planet' && (el.classList.contains('planet-main') || el.classList.contains('planet-crater'))) {
+                el.style.stroke = color;
+            }
+        });
+
+        // ===== EFEITOS DE SOMBREAMENTO POR ELEMENTO =====
+        
+        // Efeito de sombreamento/volume na lua quando pintada
+        if (elementType === 'planet') {
+            const glowOuter = svg.querySelectorAll('.planet-glow-outer');
+            const glowInner = svg.querySelectorAll('.planet-glow-inner');
+            const highlights = svg.querySelectorAll('.planet-highlight');
+
+            glowOuter.forEach(g => { g.style.opacity = '0.15'; });
+            glowInner.forEach(g => { g.style.opacity = '0.25'; });
+            // valores diferentes para criar pontos de luz variados
+            highlights.forEach((h, idx) => {
+                const values = ['0.35', '0.25', '0.18', '0.18'];
+                h.style.opacity = values[idx % values.length];
+            });
+
+            // leve sombra para dar volume
+            const planetParts = svg.querySelectorAll('.planet-main, .planet-crater');
+            planetParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 2px 2px rgba(0,0,0,0.25))';
+            });
+        }
+
+        // Efeito de sombreamento/volume no sol quando pintado
+        if (elementType === 'sun') {
+            const sunMain = svg.querySelectorAll('.sun-main');
+            const sunRays = svg.querySelectorAll('.sun-rays');
+            const sunGlows = svg.querySelectorAll('.sun-glow');
+
+            // brilho quente e sombra leve para dar profundidade
+            sunMain.forEach(el => {
+                el.style.filter = 'drop-shadow(0 1px 2px rgba(0,0,0,0.2)) drop-shadow(0 0 12px rgba(255, 200, 0, 0.6))';
+            });
+            sunRays.forEach(g => {
+                g.style.filter = 'drop-shadow(0 0 10px rgba(255, 200, 0, 0.6))';
+            });
+
+            // reforçar o glow interno e pontos de luz
+            sunGlows.forEach((g, idx) => {
+                g.style.opacity = idx === 0 ? '0.9' : '0.65';
+            });
+        }
+
+        // Efeito de sombreamento no topo do foguete quando pintado
+        if (elementType === 'rocket-top') {
+            const shading = svg.querySelectorAll('.rocket-top-shading');
+            shading.forEach(s => { s.style.opacity = '0.6'; });
+            // leve drop-shadow para dar volume geral
+            const topParts = svg.querySelectorAll('.rocket-top');
+            topParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))';
+            });
+        }
+
+        // Efeito de sombreamento no corpo/base do foguete quando pintado
+        if (elementType === 'rocket-bottom') {
+            const bottomParts = svg.querySelectorAll('.rocket-bottom');
+            bottomParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 -1px 2px rgba(0,0,0,0.18)) drop-shadow(0 3px 4px rgba(0,0,0,0.28))';
+            });
+        }
+
+        // Efeito de sombreamento/brilho nas chamas do foguete quando pintadas
+        if (elementType === 'rocket-flame') {
+            const flameParts = svg.querySelectorAll('.rocket-flames');
+            flameParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 0 8px rgba(255,150,0,0.75)) drop-shadow(0 0 16px rgba(255,200,0,0.55))';
+            });
+        }
+
+        // Efeito de sombreamento/volume na cabeça do astronauta quando pintada
+        if (elementType === 'astronaut-head') {
+            const headParts = svg.querySelectorAll('.astronaut-head');
+            headParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))';
+            });
+
+            // Reforçar levemente os highlights brancos do capacete
+            const headHighlights = svg.querySelectorAll('.astronaut-head[fill="#FFFFFF"]');
+            headHighlights.forEach((h, idx) => {
+                const target = idx < 2 ? '0.7' : '0.5';
+                h.style.opacity = target;
+            });
+        }
+
+        // Efeito de sombreamento/volume no torso e braços do astronauta quando pintados
+        if (elementType === 'astronaut-torso') {
+            const torsoParts = svg.querySelectorAll('.astronaut-torso');
+            torsoParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.22)) drop-shadow(0 1px 1px rgba(255,255,255,0.08))';
+            });
+        }
+
+        // Efeito de sombreamento/volume nas pernas do astronauta quando pintadas
+        if (elementType === 'astronaut-legs') {
+            const legParts = svg.querySelectorAll('.astronaut-legs');
+            legParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.22)) drop-shadow(0 1px 1px rgba(255,255,255,0.06))';
+            });
+        }
+
+        // Efeito de sombreamento/brilho na janela do foguete quando pintada
+        if (elementType === 'rocket-window') {
+            const windowParts = svg.querySelectorAll('.rocket-window');
+            windowParts.forEach(p => {
+                p.style.filter = 'drop-shadow(0 1px 2px rgba(0,0,0,0.25)) drop-shadow(0 0 10px rgba(255,255,255,0.35))';
+            });
+
+            // Reforçar highlights brancos da janela para dar volume
+            const windowHighlights = svg.querySelectorAll('.rocket-window[fill="#FFFFFF"]');
+            windowHighlights.forEach((h, idx) => {
+                const target = idx === 0 ? '0.8' : '0.6';
+                h.style.opacity = target;
+            });
+        }
+    }
+
+    static getElementsForType(svg, elementType) {
+        const selectors = {
+            'planet': '.planet-main, .planet-crater',
+            'sun': '.sun-main, .sun-rays, .sun-glow',
+            'rocket-top': '.rocket-top',
+            'rocket-window': '.rocket-window',
+            'rocket-bottom': '.rocket-bottom',
+            'rocket-flame': '.rocket-flames',
+            'astronaut-head': '.astronaut-head',
+            'astronaut-torso': '.astronaut-torso',
+            'astronaut-legs': '.astronaut-legs'
+        };
+
+        return svg.querySelectorAll(selectors[elementType] || '');
+    }
+
+    static resetColors() {
+        const svg = document.querySelector('.rocket svg');
+        const elements = svg.querySelectorAll('rect, polygon, circle, ellipse, path, g');
+        
+        elements.forEach(el => {
+            // Resetar fill personalizado
+            if (el.style.fill) {
+                el.style.fill = '';
+            }
+            
+            // Resetar stroke personalizado - CORREÇÃO PRINCIPAL
+            if (el.style.stroke) {
+                el.style.stroke = '';
+            }
+
+            // Resetar opacidade ajustada via estilo inline
+            if (el.style.opacity) {
+                el.style.opacity = '';
+            }
+
+            // Resetar filtro (drop-shadow) se aplicado
+            if (el.style.filter) {
+                el.style.filter = '';
+            }
+        });
+        
+        const rocket = document.getElementById('rocket');
+        rocket.classList.remove('painted', 'success');
+    }
+
+    static generateRandomColors(count) {
+        const colors = [];
+        const baseHue = Math.floor(Math.random() * 360);
+        for (let i = 0; i < count; i++) {
+            const hueStep = 360 / count;
+            const hueJitter = (Math.random() * 20) - 10;
+            const hue = Math.round((baseHue + i * hueStep + hueJitter + 360) % 360);
+            const saturation = 70 + Math.floor(Math.random() * 16);
+            const lightness = 50 + Math.floor(Math.random() * 11);
+            colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+        }
+        return colors;
+    }
+}
+
+/* ============================================================================
+   CLASSE PARA GERENCIAR OS CÁLCULOS MATEMÁTICOS
+   ============================================================================ */
+class MathManager {
+    static getRandomNumber(min = GAME_CONFIG.minNumber, max = GAME_CONFIG.maxNumber) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    static generateCalculation(targetResult = null, operation = '+') {
+        if (targetResult !== null) {
+            switch (operation) {
+                case '+': {
+                    const num1 = this.getRandomNumber(1, Math.min(targetResult - 1, 9));
+                    const num2 = targetResult - num1;
+                    return { num1, num2, result: targetResult, text: `${num1} + ${num2}` };
+                }
+                case '-': {
+                    const num1 = this.getRandomNumber(Math.min(targetResult + 1, 18), 18);
+                    const num2 = num1 - targetResult;
+                    return { num1, num2, result: targetResult, text: `${num1} - ${num2}` };
+                }
+                case 'x': {
+                    // limitar fatores para manter target dentro de 4..18
+                    const factors = [];
+                    for (let a = 2; a <= 9; a++) {
+                        for (let b = 2; b <= 9; b++) {
+                            if (a * b === targetResult) factors.push([a, b]);
+                        }
+                    }
+                    if (factors.length === 0) {
+                        // fallback para soma caso não existam fatores inteiros
+                        const num1 = this.getRandomNumber(2, Math.min(targetResult - 2, 9));
+                        const num2 = targetResult - num1;
+                        return { num1, num2, result: targetResult, text: `${num1} + ${num2}` };
+                    }
+                    const [num1, num2] = factors[Math.floor(Math.random() * factors.length)];
+                    return { num1, num2, result: targetResult, text: `${num1} x ${num2}` };
+                }
+            }
+        }
+
+        // sem target predefinido: gerar de acordo com operação
+        const a = this.getRandomNumber(1, 9);
+        const b = this.getRandomNumber(1, 9);
+        if (operation === '+') return { num1: a, num2: b, result: a + b, text: `${a} + ${b}` };
+        if (operation === '-') {
+            const x = this.getRandomNumber(2, 18);
+            const y = this.getRandomNumber(1, Math.min(9, x - 1));
+            return { num1: x, num2: y, result: x - y, text: `${x} - ${y}` };
+        }
+        // multiplicação
+        const m = this.getRandomNumber(2, 9);
+        const n = this.getRandomNumber(2, 9);
+        return { num1: m, num2: n, result: m * n, text: `${m} x ${n}` };
+    }
+
+    static generateUniqueCalculations(difficulty = 'facil') {
+        const calculations = {};
+        const areas = ['planet', 'sun', 'rocketTop', 'rocketWindow', 'rocketBottom', 'rocketFlame', 'astronautHead', 'astronautTorso', 'astronautLegs'];
+        
+        // Geramos apenas 5 números únicos para as cores
+        const targetNumbers = [];
+        const usedNumbers = new Set();
+        
+        while (targetNumbers.length < 5) {
+            const num = this.getRandomNumber(6, 16);
+            if (!usedNumbers.has(num)) {
+                targetNumbers.push(num);
+                usedNumbers.add(num);
+            }
+        }
+
+        // Em dificuldade difícil, garantir que exista pelo menos um número que seja produto de fatores entre 2..9
+        if (difficulty === 'dificil') {
+            const isProductNumber = (n) => {
+                for (let a = 2; a <= 9; a++) {
+                    if (n % a === 0) {
+                        const b = n / a;
+                        if (b >= 2 && b <= 9 && Number.isInteger(b)) return true;
+                    }
+                }
+                return false;
+            };
+            const hasProduct = targetNumbers.some(isProductNumber);
+            if (!hasProduct) {
+                // escolher um produto válido no intervalo e substituir algum alvo
+                const candidateProducts = [6, 8, 9, 10, 12, 14, 15, 16];
+                const available = candidateProducts.filter(n => !usedNumbers.has(n));
+                const chosen = (available.length ? available : candidateProducts)[Math.floor(Math.random() * (available.length ? available.length : candidateProducts.length))];
+                const replaceIndex = Math.floor(Math.random() * targetNumbers.length);
+                usedNumbers.delete(targetNumbers[replaceIndex]);
+                targetNumbers[replaceIndex] = chosen;
+                usedNumbers.add(chosen);
+            }
+        }
+
+        // Duplicamos alguns números para ter 9 áreas com apenas 5 cores
+        const allNumbers = [...targetNumbers];
+        while (allNumbers.length < 9) {
+            const randomIndex = Math.floor(Math.random() * targetNumbers.length);
+            allNumbers.push(targetNumbers[randomIndex]);
+        }
+
+        // Embaralhamos os números para distribuir aleatoriamente
+        const shuffledNumbers = [...allNumbers].sort(() => Math.random() - 0.5);
+
+        const operationsByDifficulty = {
+            'facil': ['+'],
+            'medio': ['+', '-'],
+            'dificil': ['+', '-', 'x']
+        };
+        const ops = operationsByDifficulty[difficulty] || ['+'];
+
+        // atribuir operações aleatórias inicialmente
+        const opsForAreas = areas.map(() => ops[Math.floor(Math.random() * ops.length)]);
+
+        // garantir pelo menos uma subtração no médio
+        if (difficulty === 'medio' && !opsForAreas.includes('-')) {
+            const idx = Math.floor(Math.random() * opsForAreas.length);
+            opsForAreas[idx] = '-';
+        }
+
+        // garantir pelo menos uma multiplicação no difícil
+        if (difficulty === 'dificil' && !opsForAreas.includes('x')) {
+            // escolher um índice cuja resposta alvo seja um produto válido
+            const isProductNumber = (n) => {
+                for (let a = 2; a <= 9; a++) {
+                    if (n % a === 0) {
+                        const b = n / a;
+                        if (b >= 2 && b <= 9 && Number.isInteger(b)) return true;
+                    }
+                }
+                return false;
+            };
+            const candidateIdx = shuffledNumbers.findIndex(isProductNumber);
+            const idx = candidateIdx !== -1 ? candidateIdx : Math.floor(Math.random() * opsForAreas.length);
+            opsForAreas[idx] = 'x';
+        }
+
+        areas.forEach((area, index) => {
+            calculations[area] = this.generateCalculation(shuffledNumbers[index], opsForAreas[index]);
+        });
+
+        // Verificação final e correção defensiva
+        const hasMinus = Object.values(calculations).some(c => c.text.includes('-'));
+        const hasTimes = Object.values(calculations).some(c => c.text.includes('x'));
+
+        if (difficulty === 'medio' && !hasMinus) {
+            const idx = Math.floor(Math.random() * areas.length);
+            calculations[areas[idx]] = this.generateCalculation(shuffledNumbers[idx], '-');
+        }
+
+        if (difficulty === 'dificil' && !hasTimes) {
+            const isProductNumber = (n) => {
+                for (let a = 2; a <= 9; a++) {
+                    if (n % a === 0) {
+                        const b = n / a;
+                        if (b >= 2 && b <= 9 && Number.isInteger(b)) return true;
+                    }
+                }
+                return false;
+            };
+            let idx = shuffledNumbers.findIndex(isProductNumber);
+            if (idx === -1) idx = Math.floor(Math.random() * areas.length);
+            calculations[areas[idx]] = this.generateCalculation(shuffledNumbers[idx], 'x');
+        }
+
+        return { 
+            calculations, 
+            uniqueResults: targetNumbers
+        };
+    }
+}
+
+/* ============================================================================
+   CLASSE PARA DETECÇÃO DE CLIQUES NAS ÁREAS
+   ============================================================================ */
+class ClickDetector {
+    static getClickedArea(clientX, clientY) {
+        const svg = document.querySelector('.rocket svg');
+        const rect = svg.getBoundingClientRect();
+        const svgX = (clientX - rect.left) * (800 / rect.width);
+        const svgY = (clientY - rect.top) * (600 / rect.height);
+
+        for (const [area, bounds] of Object.entries(GAME_CONFIG.clickAreas)) {
+            if (svgX >= bounds.x[0] && svgX <= bounds.x[1] && 
+                svgY >= bounds.y[0] && svgY <= bounds.y[1]) {
+                return area;
+            }
+        }
+
+        return null;
+    }
+    
+    static getClickedAreaFromTouch(touchX, touchY) {
+        return this.getClickedArea(touchX, touchY);
+    }
+}
+
+/* ============================================================================
+   CONTROLADOR PRINCIPAL DO JOGO
+   ============================================================================ */
+class GameController {
+    constructor() {
+        this.gameState = new GameState();
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.newGame();
+        this.setupResponsiveHandlers();
+    }
+
+    /* ===== CONFIGURAÇÃO DE EVENTOS ===== */
+    setupEventListeners() {
+        const rocket = document.getElementById('rocket');
+        
+        // Eventos para desktop
+        rocket.addEventListener('click', (e) => {
+            this.handleRocketClick(e.clientX, e.clientY);
+        });
+        
+        // Eventos para dispositivos móveis
+        rocket.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.handleRocketClick(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        const difficultySelect = document.getElementById('difficultySelect');
+        if (difficultySelect) {
+            // Sincronizar dificuldade inicial com o seletor
+            this.gameState.setDifficulty(difficultySelect.value || 'facil');
+            difficultySelect.addEventListener('change', (e) => {
+                const level = e.target.value;
+                this.gameState.setDifficulty(level);
+                this.newGame();
+            });
+        }
+    }
+    
+    /* ===== CONFIGURAÇÃO DE HANDLERS RESPONSIVOS ===== */
+    setupResponsiveHandlers() {
+        // Debounced resize handler para otimizar performance
+        const debouncedResize = ResponsiveUtils.debounce(() => {
+            this.handleResize();
+        }, 250);
+        
+        window.addEventListener('resize', debouncedResize);
+        
+        // Handler para mudança de orientação em dispositivos móveis
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.handleResize();
+            }, 100);
+        });
+    }
+    
+    handleResize() {
+        // Ajustar posições dos textos de cálculo quando a tela muda de tamanho
+        UIManager.showAllCalculationTexts();
+    }
+
+    /* ===== INICIALIZAÇÃO DE NOVO JOGO ===== */
+    newGame() {
+        // Preservar a dificuldade selecionada ao resetar o estado
+        const maintainedDifficulty = this.gameState.getDifficulty() || (document.getElementById('difficultySelect')?.value || 'facil');
+        this.gameState.reset();
+        this.gameState.setDifficulty(maintainedDifficulty);
+
+        const currentDifficulty = maintainedDifficulty;
+        const { calculations, uniqueResults } = MathManager.generateUniqueCalculations(currentDifficulty);
+        
+        Object.entries(calculations).forEach(([area, calc]) => {
+            this.gameState.setCalculation(area, calc.result);
+            UIManager.updateCalculationText(area, calc.text);
+        });
+
+        const shuffledNumbers = [...uniqueResults].sort(() => Math.random() - 0.5);
+        this.gameState.setGameNumbers(shuffledNumbers);
+
+        const randomColors = ColorManager.generateRandomColors(5);
+        UIManager.createColorOptions(shuffledNumbers, randomColors);
+
+        ColorManager.resetColors();
+        UIManager.resetColorOptions();
+        UIManager.showAllCalculationTexts();
+    }
+
+    /* ===== SELEÇÃO DE CORES ===== */
+    selectColor(element, color, number) {
+        UIManager.selectColorOption(element);
+        this.gameState.setSelectedColor(color);
+        this.gameState.setSelectedNumber(number);
+    }
+
+    /* ===== PROCESSAMENTO DE CLIQUES NO FOGUETE ===== */
+    handleRocketClick(clientX, clientY) {
+        const selectedColor = this.gameState.getSelectedColor();
+        
+        if (!selectedColor) {
+            UIManager.showFeedback('🎨 Primeiro escolha uma cor!', 'error');
+            return;
+        }
+
+        const clickedArea = ClickDetector.getClickedArea(clientX, clientY);
+        
+        if (!clickedArea) {
+            UIManager.showFeedback('🎯 Clique dentro de uma das áreas com cálculo!', 'error');
+            return;
+        }
+
+        if (this.gameState.isPainted(clickedArea)) {
+            UIManager.showFeedback('🖌️ Esta área já foi pintada!', 'error');
+            return;
+        }
+
+        this.processAreaClick(clickedArea, selectedColor);
+    }
+
+    processAreaClick(area, selectedColor) {
+        const correctAnswer = this.getCorrectAnswerForArea(area);
+        const selectedNumber = this.gameState.getSelectedNumber();
+
+        if (selectedNumber === correctAnswer) {
+            this.handleCorrectAnswer(area, selectedColor, selectedNumber);
+        } else {
+            this.handleIncorrectAnswer(area, correctAnswer);
+        }
+    }
+
+    getCorrectAnswerForArea(area) {
+        const areaMapping = {
+            'planet': 'planet',
+            'sun': 'sun',
+            'rocket-top': 'rocketTop',
+            'rocket-window': 'rocketWindow',
+            'rocket-bottom': 'rocketBottom',
+            'rocket-flame': 'rocketFlame',
+            'astronaut-head': 'astronautHead',
+            'astronaut-torso': 'astronautTorso',
+            'astronaut-legs': 'astronautLegs'
+        };
+
+        const mappedArea = areaMapping[area];
+        return this.gameState.getCalculation(mappedArea);
+    }
+
+    /* ===== PROCESSAMENTO DE RESPOSTAS ===== */
+    handleCorrectAnswer(area, color, number) {
+        ColorManager.updateElementColor(area, color);
+        
+        this.gameState.addPaintedArea(area);
+        
+        // Adicionar classe painted para ativar efeitos de brilho
+        const rocket = document.getElementById('rocket');
+        rocket.classList.add('painted');
+        
+        // Esconder o texto do cálculo quando for pintado corretamente
+        const areaMapping = {
+            'planet': 'planet',
+            'sun': 'sun',
+            'rocket-top': 'rocketTop',
+            'rocket-window': 'rocketWindow',
+            'rocket-bottom': 'rocketBottom',
+            'rocket-flame': 'rocketFlame',
+            'astronaut-head': 'astronautHead',
+            'astronaut-torso': 'astronautTorso',
+            'astronaut-legs': 'astronautLegs'
+        };
+        const mappedArea = areaMapping[area];
+        UIManager.hideCalculationText(mappedArea);
+        
+        this.gameState.addUsedNumber(number);
+        
+        UIManager.markColorAsUsed(number);
+        
+        UIManager.showFeedback('🎉 Parabéns! Você acertou!', 'success');
+        UIManager.addSuccessAnimation();
+        
+        if (this.gameState.isGameComplete()) {
+            setTimeout(() => {
+                UIManager.showFeedback('🚀 Parabéns! Você completou o foguete! Clique em "Novo Jogo" para jogar novamente.', 'success');
+            }, 1000);
+        }
+    }
+
+    handleIncorrectAnswer(area, correctAnswer) {
+        const areaName = GAME_CONFIG.areaNames[area];
+        UIManager.showFeedback(
+            `❌ Ops! Tente novamente!`, 
+            'error'
+        );
+    }
+}
+
+/* ============================================================================
+   INICIALIZAÇÃO DO JOGO
+   ============================================================================ */
+const gameController = new GameController();
+
+/* ============================================================================
+   FUNÇÃO GLOBAL PARA COMPATIBILIDADE
+   ============================================================================ */
+function newGame() {
+    gameController.newGame();
+}
