@@ -1,7 +1,7 @@
 /* ============================================================================
    RESET E CONFIGURAÇÕES BASE
    ============================================================================ */
-   * {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -75,6 +75,12 @@ body::after {
     100% { transform: translateY(0) rotate(0deg); }
 }
 
+@keyframes drop-success {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
 /* ============================================================================
    SEÇÃO DO TÍTULO
    ============================================================================ */
@@ -127,6 +133,38 @@ body::after {
     z-index: 10;
 }
 
+.rocket {
+    width: 800px;
+    height: 600px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 30px rgba(255,255,255,0.3));
+    border-radius: 15px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.rocket svg {
+    width: 100%;
+    height: 100%;
+}
+
+.rocket:hover {
+    transform: scale(1.02);
+}
+
+.rocket.success {
+    animation: rocket-launch 0.8s ease-in-out;
+}
+
+.rocket.drag-over {
+    border: 2px dashed #00ffff;
+    box-shadow: 0 0 30px rgba(0,255,255,0.5);
+    transform: scale(1.02);
+}
+
 /* ============================================================================
    TEXTOS DE CÁLCULO
    ============================================================================ */
@@ -150,6 +188,10 @@ body::after {
     border: 2px solid #000000;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
     transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.sum-text.hidden {
+    display: none;
 }
 
 /* Estilos para boxes de cálculo interativas */
@@ -190,27 +232,21 @@ body::after {
         0 0 6px rgba(255,255,255,0.8);
 }
 
-/* Estilos responsivos para dispositivos móveis */
-@media (max-width: 767px) {
-    .sum-text.interactive-calc {
-        padding: 6px 10px;
-        border-width: 3px;
-    }
-    
-    .sum-text.interactive-calc:hover {
-        transform: translate(-50%, -50%) scale(1.08);
-    }
-    
-    .sum-text.interactive-calc.drag-over-calc {
-        transform: translate(-50%, -50%) scale(1.12);
-    }
-    
-    .sum-text.interactive-calc.drop-success-calc {
-        transform: translate(-50%, -50%) scale(1.18);
-    }
+/* Posicionamento dos textos de cálculo */
+.planet-calc {
+    top: 17%;
+    left: 27%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
 }
 
-/* Posicionamento dos textos de cálculo */
+.sun-calc {
+    top: 9%;
+    left: 70%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+}
+
 .rocket-top-calc {
     top: 27%;
     left: 34%;
@@ -228,6 +264,13 @@ body::after {
 .rocket-bottom-calc {
     top: 55%;
     left: 39%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+}
+
+.rocket-flame-calc {
+    top: 73%;
+    left: 16%;
     transform: translate(-50%, -50%);
     font-size: 12px;
 }
@@ -253,29 +296,12 @@ body::after {
     font-size: 12px;
 }
 
-.rocket-flame-calc {
-    top: 73%;
-    left: 16%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-}
-
-.planet-calc {
-    top: 17%;
-    left: 27%;
-    transform: translate(-50%, -50%);
-    font-size: 16px;
-}
-
-.sun-calc {
-    top: 9%;
-    left: 70%;
-    transform: translate(-50%, -50%);
-    font-size: 14px;
-}
-
-.sum-text.hidden {
-    display: none;
+/* Garantir que as caixas fiquem sobre as linhas */
+.planet-calc, .sun-calc, .rocket-top-calc, .rocket-window-calc, 
+.rocket-bottom-calc, .rocket-flame-calc, .astronaut-head-calc, 
+.astronaut-torso-calc, .astronaut-legs-calc {
+    z-index: 100;
+    background: #FFFFFF;
 }
 
 /* ============================================================================
@@ -487,14 +513,6 @@ body::after {
     border-top: 2px solid #000000;
 }
 
-/* Garantir que as caixas fiquem sobre as linhas */
-.planet-calc, .sun-calc, .rocket-top-calc, .rocket-window-calc, 
-.rocket-bottom-calc, .rocket-flame-calc, .astronaut-head-calc, 
-.astronaut-torso-calc, .astronaut-legs-calc {
-    z-index: 100;
-    background: #FFFFFF;
-}
-
 /* ============================================================================
    TRANSIÇÕES DOS ELEMENTOS SVG
    ============================================================================ */
@@ -590,6 +608,39 @@ body::after {
     padding: 6px 10px;
     border-radius: 8px;
     cursor: pointer;
+}
+
+/* Estilos para o pop-up das opções do select */
+.difficulty-select option {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-weight: 500;
+}
+
+/* Estilo para quando o select está aberto (foco) */
+.difficulty-select:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow: 0 0 10px rgba(0,255,255,0.5);
+}
+
+/* Estilo para o hover das opções */
+.difficulty-select option:hover {
+    background-color: #333333;
+}
+
+/* Estilo para a opção selecionada */
+.difficulty-select option:checked {
+    background-color: #00ffff;
+    color: #000000;
+    font-weight: bold;
+}
+
+/* Estilo para quando o select está aberto */
+.difficulty-select:focus option {
+    background-color: #000000;
+    color: #ffffff;
 }
 
 /* ============================================================================
@@ -691,41 +742,7 @@ body::after {
 /* ============================================================================
    EFEITOS DE DRAG AND DROP NO FOGUETE
    ============================================================================ */
-.rocket {
-    width: 800px;
-    height: 600px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 0 30px rgba(255,255,255,0.3));
-    border-radius: 15px;
-    overflow: hidden;
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255,255,255,0.2);
-}
-
-.rocket.drag-over {
-    border: 2px dashed #00ffff;
-    box-shadow: 0 0 30px rgba(0,255,255,0.5);
-    transform: scale(1.02);
-}
-
-.rocket svg {
-    width: 100%;
-    height: 100%;
-}
-
-.rocket:hover {
-    transform: scale(1.02);
-}
-
-.rocket.success {
-    animation: rocket-launch 0.8s ease-in-out;
-}
-
-/* ============================================================================
-   INDICADORES VISUAIS PARA ÁREAS DE DROP
-   ============================================================================ */
+/* Indicadores visuais para áreas de drop */
 .drop-zone {
     position: relative;
 }
@@ -750,9 +767,7 @@ body::after {
     opacity: 1;
 }
 
-/* ============================================================================
-   DESTAQUE DAS ÁREAS CLICÁVEIS DURANTE DRAG
-   ============================================================================ */
+/* Destaque das áreas clicáveis durante drag */
 .rocket.drag-over .planet-main,
 .rocket.drag-over .planet-crater {
     filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
@@ -821,12 +836,6 @@ body::after {
 /* ============================================================================
    ANIMAÇÕES PARA FEEDBACK DE DROP
    ============================================================================ */
-@keyframes drop-success {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
 .drop-success {
     animation: drop-success 0.3s ease-in-out;
 }
@@ -926,5 +935,23 @@ body::after {
     
     .rocket.drag-over {
         transform: scale(1.01);
+    }
+    
+    /* Estilos responsivos para dispositivos móveis */
+    .sum-text.interactive-calc {
+        padding: 6px 10px;
+        border-width: 3px;
+    }
+    
+    .sum-text.interactive-calc:hover {
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+    
+    .sum-text.interactive-calc.drag-over-calc {
+        transform: translate(-50%, -50%) scale(1.12);
+    }
+    
+    .sum-text.interactive-calc.drop-success-calc {
+        transform: translate(-50%, -50%) scale(1.18);
     }
 }

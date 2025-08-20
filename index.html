@@ -10,25 +10,37 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- ===== SEÇÃO DO TÍTULO ===== -->
+    <!-- ============================================================================
+         SEÇÃO DO TÍTULO
+         ============================================================================ -->
     <h1 class="game-title">🚀 Jogo do Foguete - Calcule e Pinte</h1>
     
-    <!-- ===== SEÇÃO DE INSTRUÇÕES ===== -->
+    <!-- ============================================================================
+         SEÇÃO DE INSTRUÇÕES
+         ============================================================================ -->
     <div class="instructions">
         <p>📝 <strong>Como jogar:</strong> Cada parte do desenho tem um cálculo. Faça as somas, encontre os resultados na lista e <strong>clique nas cores ou arraste-as</strong> até cada parte ou <strong>clique diretamente nas caixas de cálculo</strong> para pintá-las! As cores podem ser usadas quantas vezes quiser!</p>
     </div>
 
-    <!-- ===== CONTAINER PRINCIPAL DO JOGO ===== -->
+    <!-- ============================================================================
+         CONTAINER PRINCIPAL DO JOGO
+         ============================================================================ -->
     <div class="game-container">
         
-        <!-- ===== ÁREA DO FOGUETE E DESENHO ===== -->
+        <!-- ============================================================================
+             ÁREA DO FOGUETE E DESENHO
+             ============================================================================ -->
         <div class="rocket-container">
             <div class="rocket drop-zone" id="rocket">
                 
-                <!-- ===== SVG DO DESENHO ===== -->
+                <!-- ============================================================================
+                     SVG DO DESENHO
+                     ============================================================================ -->
                 <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
                     
-                    <!-- ===== DEFINIÇÕES E GRADIENTES ===== -->
+                    <!-- ============================================================================
+                         DEFINIÇÕES E GRADIENTES
+                         ============================================================================ -->
                     <defs>
                         <!-- Gradiente para sombreamento do topo do foguete -->
                         <linearGradient id="rocketTopShadowGrad" x1="80" y1="15" x2="80" y2="120" gradientUnits="userSpaceOnUse">
@@ -38,7 +50,9 @@
                         </linearGradient>
                     </defs>
                     
-                    <!-- ===== PLANETA/LUA ===== -->
+                    <!-- ============================================================================
+                         PLANETA/LUA
+                         ============================================================================ -->
                     <g transform="translate(30, 30)">
                         <!-- Corpo principal da lua -->
                         <circle cx="70" cy="70" r="50" fill="#E8E8E8" stroke="#333333" stroke-width="2" class="planet-main"/>
@@ -63,7 +77,9 @@
                         <circle cx="55" cy="80" r="6" fill="#FFFFFF" opacity="0" class="planet-highlight"/>
                     </g>
                     
-                    <!-- ===== SOL ===== -->
+                    <!-- ============================================================================
+                         SOL
+                         ============================================================================ -->
                     <g transform="translate(580, 20)">
                         <!-- Raios do sol -->
                         <g stroke="#E8E8E8" stroke-width="4" fill="none" class="sun-rays">
@@ -87,10 +103,14 @@
                         <circle cx="95" cy="70" r="2.5" fill="#FFFFFF" class="sun-glow"/>
                     </g>
                     
-                    <!-- ===== FOGUETE ===== -->
+                    <!-- ============================================================================
+                         FOGUETE
+                         ============================================================================ -->
                     <g transform="translate(120, 150)">
                         
-                        <!-- ===== CORPO INFERIOR DO FOGUETE ===== -->
+                        <!-- ============================================================================
+                             CORPO INFERIOR DO FOGUETE
+                             ============================================================================ -->
                         <!-- Corpo principal inferior (bottom) -->
                         <ellipse cx="80" cy="175" rx="45" ry="45" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="rocket-bottom"/>
                         
@@ -145,7 +165,9 @@
                             <circle cx="118" cy="175" r="1.5" class="rocket-bottom"/>
                         </g>
                         
-                        <!-- ===== JANELA DO FOGUETE ===== -->
+                        <!-- ============================================================================
+                             JANELA DO FOGUETE
+                             ============================================================================ -->
                         <!-- Janela principal -->
                         <circle cx="80" cy="110" r="28" fill="#F0F0F0" stroke="#333333" stroke-width="4" class="rocket-window"/>
                         <circle cx="80" cy="110" r="24" fill="#FFFFFF" opacity="0.3" class="rocket-window"/>
@@ -158,7 +180,9 @@
                         <circle cx="54" cy="126" r="4" fill="#FFFFFF" class="rocket-window"/>
                         <circle cx="106" cy="126" r="4" fill="#FFFFFF" class="rocket-window"/>
                         
-                        <!-- ===== CORPO SUPERIOR DO FOGUETE ===== -->
+                        <!-- ============================================================================
+                             CORPO SUPERIOR DO FOGUETE
+                             ============================================================================ -->
                         <!-- Corpo superior -->
                         <ellipse cx="80" cy="75" rx="45" ry="45" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="rocket-top"/>
                         
@@ -213,23 +237,31 @@
                             <circle cx="118" cy="125" r="1.5" class="rocket-top"/>
                         </g>
                         
-                        <!-- ===== CHAMAS DO FOGUETE ===== -->
+                        <!-- ============================================================================
+                             CHAMAS DO FOGUETE
+                             ============================================================================ -->
                         <path d="M52,224 Q58,268 48,285 Q68,245 80,295 Q92,245 112,285 Q102,268 108,224" fill="#E8E8E8" stroke="#333333" stroke-width="2" class="rocket-flames"/>
                         <path d="M55,228 Q62,260 52,278 Q72,248 80,285 Q88,248 108,278 Q98,260 105,228" fill="#CCCCCC" class="rocket-flames"/>
                         <path d="M58,232 Q65,252 58,270 Q75,252 80,278 Q85,252 102,270 Q95,252 102,232" fill="#DDDDDD" class="rocket-flames"/>
                         <path d="M62,236 Q68,248 62,265 Q76,250 80,270 Q84,250 98,265 Q92,248 98,236" fill="#F0F0F0" class="rocket-flames"/>
                     </g>
                     
-                    <!-- ===== ASTRONAUTA ===== -->
+                    <!-- ============================================================================
+                         ASTRONAUTA
+                         ============================================================================ -->
                     <g transform="translate(480, 200)">
                         
-                        <!-- ===== MOCHILA DE SUPORTE À VIDA ===== -->
+                        <!-- ============================================================================
+                             MOCHILA DE SUPORTE À VIDA
+                             ============================================================================ -->
                         <rect x="75" y="90" width="20" height="45" fill="#DDDDDD" stroke="#333333" stroke-width="3" rx="10" class="astronaut-torso"/>
                         <rect x="78" y="95" width="14" height="8" fill="#666666" stroke="#333333" stroke-width="1" rx="2"/>
                         <circle cx="82" cy="105" r="2" fill="#CCCCCC"/>
                         <circle cx="88" cy="105" r="2" fill="#CCCCCC"/>
                         
-                        <!-- ===== CABEÇA/CAPACETE ===== -->
+                        <!-- ============================================================================
+                             CABEÇA/CAPACETE
+                             ============================================================================ -->
                         <!-- Capacete principal -->
                         <circle cx="50" cy="50" r="40" fill="#F0F0F0" stroke="#333333" stroke-width="4" class="astronaut-head"/>
                         
@@ -269,7 +301,9 @@
                         <circle cx="74" cy="92" r="2" fill="#666666"/>
                         <circle cx="80" cy="92" r="2" fill="#666666"/>
                         
-                        <!-- ===== TORSO E BRAÇOS ===== -->
+                        <!-- ============================================================================
+                             TORSO E BRAÇOS
+                             ============================================================================ -->
                         <!-- Corpo do traje espacial -->
                         <rect x="25" y="90" width="50" height="70" rx="25" fill="#E8E8E8" stroke="#333333" stroke-width="4" class="astronaut-torso"/>
                         
@@ -373,7 +407,9 @@
                         <text x="28" y="167" font-family="Arial, sans-serif" font-size="3" fill="#333333" text-anchor="middle">O₂</text>
                         <text x="72" y="167" font-family="Arial, sans-serif" font-size="3" fill="#333333" text-anchor="middle">N₂</text>
                         
-                        <!-- ===== PERNAS ===== -->
+                        <!-- ============================================================================
+                             PERNAS
+                             ============================================================================ -->
                         <!-- Pernas do traje -->
                         <ellipse cx="35" cy="210" rx="12" ry="40" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="astronaut-legs"/>
                         <ellipse cx="65" cy="210" rx="12" ry="40" fill="#E8E8E8" stroke="#333333" stroke-width="3" class="astronaut-legs"/>
@@ -427,7 +463,9 @@
                         <circle cx="70" cy="244.5" r="1" fill="#BBBBBB"/>
                     </g>
                     
-                    <!-- ===== ESTRELAS PEQUENAS ===== -->
+                    <!-- ============================================================================
+                         ESTRELAS PEQUENAS
+                         ============================================================================ -->
                     <circle cx="320" cy="60" r="2" fill="#FFFFFF"/>
                     <circle cx="560" cy="100" r="2" fill="#FFFFFF"/>
                     <circle cx="400" cy="45" r="2" fill="#FFFFFF"/>
@@ -439,7 +477,9 @@
                     <circle cx="500" cy="530" r="1.5" fill="#FFFFFF"/>
                 </svg>
                 
-                <!-- ===== TEXTOS DOS CÁLCULOS ===== -->
+                <!-- ============================================================================
+                     TEXTOS DOS CÁLCULOS
+                     ============================================================================ -->
                 <!-- Linhas de conexão -->
                 <div class="sum-text-line planet-calc-line"></div>
                 <div class="sum-text-line sun-calc-line"></div>
@@ -464,10 +504,14 @@
             </div>
         </div>
 
-        <!-- ===== SEÇÃO DE CONTROLES ===== -->
+        <!-- ============================================================================
+             SEÇÃO DE CONTROLES
+             ============================================================================ -->
         <div class="controls">
             
-            <!-- ===== SELEÇÃO DE DIFICULDADE ===== -->
+            <!-- ============================================================================
+                 SELEÇÃO DE DIFICULDADE
+                 ============================================================================ -->
             <div class="difficulty-container">
                 <label class="difficulty-label" for="difficultySelect">Nível:</label>
                 <select id="difficultySelect" class="difficulty-select">
@@ -477,7 +521,9 @@
                 </select>
             </div>
             
-            <!-- ===== SELEÇÃO DE CORES ===== -->
+            <!-- ============================================================================
+                 SELEÇÃO DE CORES
+                 ============================================================================ -->
             <div class="numbers-container">
                 <div class="numbers-title">🎯 Escolha a cor do resultado:</div>
                 <div class="color-options" id="colorOptions">
@@ -485,18 +531,26 @@
                 </div>
             </div>
             
-            <!-- ===== BOTÃO NOVO JOGO ===== -->
+            <!-- ============================================================================
+                 BOTÃO NOVO JOGO
+                 ============================================================================ -->
             <button class="new-game-btn" onclick="gameController.newGame()">🆕 Novo Jogo</button>
         </div>
     </div>
 
-    <!-- ===== SEÇÃO DE FEEDBACK ===== -->
+    <!-- ============================================================================
+         SEÇÃO DE FEEDBACK
+         ============================================================================ -->
     <div class="feedback" id="feedback"></div>
 
-    <!-- ===== INDICADOR DE DRAG ===== -->
+    <!-- ============================================================================
+         INDICADOR DE DRAG
+         ============================================================================ -->
     <div class="drag-indicator" id="dragIndicator"></div>
 
-    <!-- ===== SCRIPTS ===== -->
+    <!-- ============================================================================
+         SCRIPTS
+         ============================================================================ -->
     <script src="script.js"></script>
 </body>
 </html>
