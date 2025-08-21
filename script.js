@@ -16,7 +16,7 @@ const GAME_CONFIG = {
         'rocket-flame': { x: [165, 275], y: [372, 435] },
         'astronaut-head': { x: [480, 580], y: [200, 290] },
         'astronaut-torso': { x: [480, 580], y: [290, 375] },
-        'astronaut-legs': { x: [480, 580], y: [375, 460] }
+        'astronaut-legs': { x: [480, 580], y: [360, 445] }
     },
     areaNames: {
         'planet': 'planeta',
