@@ -48,6 +48,22 @@
                             <stop offset="45%" stop-color="#000000" stop-opacity="0.12"/>
                             <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
                         </linearGradient>
+                        
+                        <!-- Filtro de brilho intenso para os raios do sol -->
+                        <filter id="sunRayGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur1"/>
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur2"/>
+                            <feMerge>
+                                <feMergeNode in="blur1"/>
+                                <feMergeNode in="blur2"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                            <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1.5 0" result="glow"/>
+                            <feMerge>
+                                <feMergeNode in="glow"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
                     </defs>
                     
                     <!-- ============================================================================
@@ -81,14 +97,13 @@
                          SOL
                          ============================================================================ -->
                     <g transform="translate(580, 20)">
-                        <!-- Raios do sol -->
-                        <g stroke="#E8E8E8" stroke-width="4" fill="none" class="sun-rays">
-                            <path d="M100,5 L100,115"/>
-                            <path d="M15,60 L185,60"/>
-                            <path d="M35,20 L155,100"/>
-                            <path d="M35,100 L155,20"/>
-                            <path d="M55,25 L145,95"/>
-                            <path d="M55,95 L145,25"/>
+                        <!-- Raios do sol - Estrela dos ventos -->
+                        <g stroke="#FFFFFF" stroke-width="4" fill="none" class="sun-rays" stroke-linecap="round" opacity="0.9">
+                            <!-- Raios principais: vertical, horizontal e diagonais -->
+                            <path d="M100,-12 L100,132"/>
+                            <path d="M-12,60 L212,60"/>
+                            <path d="M50,-10 L150,130"/>
+                            <path d="M150,-10 L50,130"/>
                         </g>
                         
                         <!-- Corpo principal do sol -->

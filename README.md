@@ -15,7 +15,7 @@ Um jogo educativo interativo que combina matemática e criatividade, onde os jog
 
 ## 🎯 Sobre o Projeto
 
-O **Jogo do Foguete - Calcule e Pinte** é uma aplicação web educativa desenvolvida para tornar o aprendizado de matemática mais divertido e interativo. O jogo apresenta um foguete espacial detalhado com diferentes partes que precisam ser pintadas através da resolução de cálculos matemáticos.
+O **Jogo do Foguete - Calcule e Pinte** é um jogo desenvolvido para apresentação no curso de Pedagogia, com foco no aprendizado de crianças com autismo nível 2, sejam vocais ou não. Estimula rastreamento visual, identificação de cores e números, operações matemáticas personalizáveis, memória, atenção, linguagem e flexibilidade cognitiva
 
 ### 🎨 Características Principais
 
