@@ -102,6 +102,10 @@ class GameState {
         this.paintedAreas = new Set();
         this.usedNumbers = new Set();
         this.difficulty = 'facil';
+        // Novo: rastrear quantas áreas cada número pode pintar
+        this.numberAreaCount = new Map();
+        // Novo: rastrear quantas áreas cada número já pintou
+        this.numberPaintedCount = new Map();
     }
 
     setCalculation(area, value) {
@@ -130,6 +134,8 @@ class GameState {
 
     setGameNumbers(numbers) {
         this.gameNumbers = numbers;
+        // Novo: calcular quantas áreas cada número pode pintar
+        this.calculateNumberAreaCount();
     }
 
     getGameNumbers() {
@@ -138,6 +144,28 @@ class GameState {
 
     addPaintedArea(area) {
         this.paintedAreas.add(area);
+        // Novo: incrementar contador de áreas pintadas para o número usado
+        // Usar o mapeamento correto de áreas
+        const areaMapping = {
+            'planet': 'planet',
+            'sun': 'sun',
+            'rocket-top': 'rocketTop',
+            'rocket-window': 'rocketWindow',
+            'rocket-bottom': 'rocketBottom',
+            'rocket-flame': 'rocketFlame',
+            'astronaut-head': 'astronautHead',
+            'astronaut-torso': 'astronautTorso',
+            'astronaut-legs': 'astronautLegs'
+        };
+        const mappedArea = areaMapping[area];
+        if (mappedArea) {
+            const areaNumber = this.getCalculation(mappedArea);
+            if (areaNumber) {
+                const currentCount = this.numberPaintedCount.get(areaNumber) || 0;
+                const newCount = currentCount + 1;
+                this.numberPaintedCount.set(areaNumber, newCount);
+            }
+        }
     }
 
     isPainted(area) {
@@ -162,6 +190,46 @@ class GameState {
 
     getDifficulty() {
         return this.difficulty;
+    }
+
+    // Novo: calcular quantas áreas cada número pode pintar
+    calculateNumberAreaCount() {
+        this.numberAreaCount.clear();
+        this.numberPaintedCount.clear();
+        
+        // Contar quantas áreas cada número pode pintar
+        // Usar os nomes corretos das áreas que são definidos no MathManager
+        const areaNames = ['planet', 'sun', 'rocketTop', 'rocketWindow', 'rocketBottom', 'rocketFlame', 'astronautHead', 'astronautTorso', 'astronautLegs'];
+        
+        areaNames.forEach(areaName => {
+            const number = this.getCalculation(areaName);
+            if (number) {
+                const currentCount = this.numberAreaCount.get(number) || 0;
+                const newCount = currentCount + 1;
+                this.numberAreaCount.set(number, newCount);
+                // Inicializar contador de áreas pintadas
+                this.numberPaintedCount.set(number, 0);
+            }
+        });
+    }
+
+    // Novo: verificar se um número está completo (todas as áreas pintadas)
+    isNumberComplete(number) {
+        const totalAreas = this.numberAreaCount.get(number) || 0;
+        const paintedAreas = this.numberPaintedCount.get(number) || 0;
+        // Um número está completo quando todas as áreas que ele pode pintar foram pintadas
+        return totalAreas > 0 && paintedAreas >= totalAreas;
+    }
+
+    // Novo: obter todos os números completos
+    getCompletedNumbers() {
+        const completed = [];
+        this.numberAreaCount.forEach((totalAreas, number) => {
+            if (this.isNumberComplete(number)) {
+                completed.push(number);
+            }
+        });
+        return completed;
     }
 }
 
@@ -359,6 +427,10 @@ class UIManager {
         // Handler de clique
         element._clickHandler = (e) => {
             e.stopPropagation();
+            if (!gameController || !gameController.gameState) {
+                return; // Sair se gameController não estiver disponível
+            }
+            
             const selectedColor = gameController.gameState.getSelectedColor();
             const selectedNumber = gameController.gameState.getSelectedNumber();
             
@@ -421,6 +493,10 @@ class UIManager {
             try {
                 const data = JSON.parse(e.dataTransfer.getData('text/plain'));
                 
+                if (!gameController || !gameController.gameState) {
+                    return; // Sair se gameController não estiver disponível
+                }
+                
                 if (gameController.gameState.isPainted(area)) {
                     UIManager.showFeedback('🖌️ Esta área já foi pintada!', 'error');
                     return;
@@ -466,14 +542,21 @@ class UIManager {
             option.dataset.number = number;
             option.dataset.color = colors[index];
             
+            // Restaurar o clique nas cores
+            option.onclick = () => {
+                if (gameController) {
+                    gameController.selectColor(option, colors[index], number);
+                }
+            };
+            
             // Usar touchstart para melhor resposta em dispositivos móveis
             if (ResponsiveUtils.isMobile()) {
                 option.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    gameController.selectColor(option, colors[index], number);
+                    if (gameController) {
+                        gameController.selectColor(option, colors[index], number);
+                    }
                 });
-            } else {
-                option.onclick = () => gameController.selectColor(option, colors[index], number);
             }
 
             option.innerHTML = `
@@ -502,6 +585,11 @@ class UIManager {
             const optionNumber = parseInt(option.querySelector('.number').textContent);
             if (optionNumber === number) {
                 option.classList.add('used');
+                
+                // Novo: verificar se o número está completo e aplicar estilo verde
+                if (gameController && gameController.gameState && gameController.gameState.isNumberComplete(number)) {
+                    option.classList.add('completed');
+                }
             }
         });
     }
@@ -510,7 +598,7 @@ class UIManager {
         document.querySelectorAll('.color-option').forEach(option => {
             option.style.opacity = '1';
             option.style.pointerEvents = 'auto';
-            option.classList.remove('selected', 'used');
+            option.classList.remove('selected', 'used', 'completed');
         });
     }
 
@@ -519,6 +607,30 @@ class UIManager {
         const rocket = document.getElementById('rocket');
         rocket.classList.add('success');
         setTimeout(() => rocket.classList.remove('success'), GAME_CONFIG.animationDuration);
+    }
+
+    static updateColorOptionsState() {
+        if (!gameController || !gameController.gameState) {
+            return; // Sair se gameController não estiver disponível
+        }
+        
+        const options = document.querySelectorAll('.color-option');
+        options.forEach(option => {
+            const optionNumber = parseInt(option.querySelector('.number').textContent);
+            
+            // Remover classes anteriores
+            option.classList.remove('used', 'completed');
+            
+            // Verificar se o número foi usado
+            if (gameController.gameState.isNumberUsed(optionNumber)) {
+                option.classList.add('used');
+                
+                // Verificar se está completo
+                if (gameController.gameState.isNumberComplete(optionNumber)) {
+                    option.classList.add('completed');
+                }
+            }
+        });
     }
 }
 
@@ -969,7 +1081,9 @@ class GameController {
             difficultySelect.addEventListener('change', (e) => {
                 const level = e.target.value;
                 this.gameState.setDifficulty(level);
-                this.newGame();
+                if (gameController) {
+                    this.newGame();
+                }
             });
         }
     }
@@ -1046,12 +1160,14 @@ class GameController {
                 const clickedArea = ClickDetector.getClickedArea(e.clientX, e.clientY);
                 
                 if (clickedArea) {
-                    this.handleDragAndDrop(clickedArea, data.color, data.number);
-                    // Adicionar feedback visual de sucesso
-                    rocket.classList.add('drop-success');
-                    setTimeout(() => {
-                        rocket.classList.remove('drop-success');
-                    }, 300);
+                    if (gameController) {
+                        this.handleDragAndDrop(clickedArea, data.color, data.number);
+                        // Adicionar feedback visual de sucesso
+                        rocket.classList.add('drop-success');
+                        setTimeout(() => {
+                            rocket.classList.remove('drop-success');
+                        }, 300);
+                    }
                 } else {
                     UIManager.showFeedback('🎯 Solte a cor em uma área com cálculo!', 'error');
                 }
@@ -1120,13 +1236,15 @@ class GameController {
                         if (clickedArea) {
                             const number = parseInt(draggedElement.dataset.number);
                             const color = draggedElement.dataset.color;
-                            this.handleDragAndDrop(clickedArea, color, number);
-                            
-                            // Adicionar feedback visual de sucesso
-                            rocket.classList.add('drop-success');
-                            setTimeout(() => {
-                                rocket.classList.remove('drop-success');
-                            }, 300);
+                            if (gameController) {
+                                this.handleDragAndDrop(clickedArea, color, number);
+                                
+                                // Adicionar feedback visual de sucesso
+                                rocket.classList.add('drop-success');
+                                setTimeout(() => {
+                                    rocket.classList.remove('drop-success');
+                                }, 300);
+                            }
                         } else {
                             UIManager.showFeedback('🎯 Solte a cor em uma área com cálculo!', 'error');
                         }
@@ -1222,6 +1340,11 @@ class GameController {
         document.querySelectorAll('.sum-text.interactive-calc').forEach(element => {
             element.classList.remove('drag-over-calc', 'drop-success-calc');
         });
+        
+        // Novo: atualizar estado visual das cores após inicialização
+        if (gameController) {
+            UIManager.updateColorOptionsState();
+        }
     }
 
     /* ===== SELEÇÃO DE CORES ===== */
@@ -1233,6 +1356,10 @@ class GameController {
 
     /* ===== PROCESSAMENTO DE CLIQUES NO FOGUETE ===== */
     handleRocketClick(clientX, clientY) {
+        if (!gameController || !gameController.gameState) {
+            return; // Sair se gameController não estiver disponível
+        }
+        
         const selectedColor = this.gameState.getSelectedColor();
         
         if (!selectedColor) {
@@ -1312,6 +1439,11 @@ class GameController {
         
         UIManager.markColorAsUsed(number);
         
+        // Novo: atualizar estado visual de todas as cores
+        if (gameController) {
+            UIManager.updateColorOptionsState();
+        }
+        
         UIManager.showFeedback('🎉 Parabéns! Você acertou!', 'success');
         UIManager.addSuccessAnimation();
         
@@ -1334,11 +1466,24 @@ class GameController {
 /* ============================================================================
    INICIALIZAÇÃO DO JOGO
    ============================================================================ */
-const gameController = new GameController();
+// Variável global para o controlador do jogo
+let gameController;
 
-/* ============================================================================
-   FUNÇÃO GLOBAL PARA COMPATIBILIDADE
-   ============================================================================ */
+// Função de inicialização que será chamada quando o DOM estiver pronto
+function initializeGame() {
+    gameController = new GameController();
+}
+
+// Função global para compatibilidade
 function newGame() {
-    gameController.newGame();
+    if (gameController) {
+        gameController.newGame();
+    }
+}
+
+// Inicializar o jogo quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeGame);
+} else {
+    initializeGame();
 }
