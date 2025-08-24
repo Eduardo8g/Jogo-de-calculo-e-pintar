@@ -652,9 +652,9 @@ class ColorManager {
                 el.style.fill = color;
             }
             
-            // Para o sol, também colorir os raios (stroke)
+            // Para o sol, também colorir os raios (fill)
             if (elementType === 'sun' && (el.classList.contains('sun-rays') || el.classList.contains('sun-main'))) {
-                el.style.stroke = color;
+                el.style.fill = color;
             }
             
             // Para o planeta, colorir o contorno também

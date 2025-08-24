@@ -19,7 +19,7 @@
          SEÇÃO DE INSTRUÇÕES
          ============================================================================ -->
     <div class="instructions">
-        <p>📝 <strong>Como jogar:</strong> Cada parte do desenho tem um cálculo. Faça as somas, encontre os resultados na lista e <strong>clique nas cores ou arraste-as</strong> até cada parte ou <strong>clique diretamente nas caixas de cálculo</strong> para pintá-las! As cores podem ser usadas quantas vezes quiser!</p>
+        <p>📝 <strong>Como jogar:</strong> Cada parte do desenho tem um calculo. Faça as somas, encontre os resultados na lista e <strong>aperte nas cores ou arraste-as</strong> até cada parte! As cores podem ser usadas quantas vezes quiser!</p>
     </div>
 
     <!-- ============================================================================
@@ -94,29 +94,49 @@
                     </g>
                     
                     <!-- ============================================================================
-                         SOL
+                          SOL
                          ============================================================================ -->
-                    <g transform="translate(580, 20)">
-                        <!-- Raios do sol - Estrela dos ventos -->
-                        <g stroke="#FFFFFF" stroke-width="4" fill="none" class="sun-rays" stroke-linecap="round" opacity="0.9">
-                            <!-- Raios principais: vertical, horizontal e diagonais -->
-                            <path d="M100,-12 L100,132"/>
-                            <path d="M-12,60 L212,60"/>
-                            <path d="M50,-10 L150,130"/>
-                            <path d="M150,-10 L50,130"/>
-                        </g>
-                        
-                        <!-- Corpo principal do sol -->
-                        <circle cx="100" cy="60" r="40" fill="#E8E8E8" stroke="#333333" stroke-width="2" class="sun-main"/>
-                        
-                        <!-- Brilho interno -->
-                        <circle cx="90" cy="50" r="20" fill="#FFFFFF" opacity="0.7" class="sun-glow"/>
-                        
-                        <!-- Pontos de luz -->
-                        <circle cx="85" cy="45" r="4" fill="#FFFFFF" class="sun-glow"/>
-                        <circle cx="105" cy="55" r="3" fill="#FFFFFF" class="sun-glow"/>
-                        <circle cx="95" cy="70" r="2.5" fill="#FFFFFF" class="sun-glow"/>
-                    </g>
+                     <g transform="translate(580, 20)">
+                         <!-- Corpo principal do sol -->
+                         <circle cx="100" cy="60" r="40" fill="#E8E8E8" stroke="#333333" stroke-width="2" class="sun-main"/>
+                         
+                         <!-- Brilho interno -->
+                         <circle cx="90" cy="50" r="20" fill="#FFFFFF" opacity="0.7" class="sun-glow"/>
+                         
+                         <!-- Pontos de luz -->
+                         <circle cx="85" cy="45" r="4" fill="#FFFFFF" class="sun-glow"/>
+                         <circle cx="105" cy="55" r="3" fill="#FFFFFF" class="sun-glow"/>
+                         <circle cx="95" cy="70" r="2.5" fill="#FFFFFF" class="sun-glow"/>
+                         
+                    <!-- Raios do sol - 12 raios extensos e bem separados -->
+                          <g fill="#FFFFFF" opacity="0.9" class="sun-rays">
+                              <!-- 12 raios distribuídos uniformemente (a cada 30°) -->
+                              <!-- Norte (0°) -->
+                              <rect x="95" y="-20" width="10" height="30" rx="5" ry="5"/>
+                              <!-- Nordeste (30°) -->
+                              <rect x="125" y="-20" width="10" height="30" rx="5" ry="5" transform="rotate(30 115 5)"/>
+                              <!-- Leste-nordeste (60°) -->
+                              <rect x="147" y="-20" width="10" height="30" rx="5" ry="5" transform="rotate(60 130 15)"/>
+                              <!-- Leste (90°) -->
+                              <rect x="140" y="-5" width="10" height="30" rx="5" ry="5" transform="rotate(90 135 45)"/>
+                              <!-- Leste-sudeste (120°) -->
+                              <rect x="120" y="25" width="10" height="30" rx="5" ry="5" transform="rotate(120 130 75)"/>
+                              <!-- Sudeste (150°) -->
+                              <rect x="100" y="50" width="10" height="30" rx="5" ry="5" transform="rotate(150 115 95)"/>
+                              <!-- Sul (180°) -->
+                              <rect x="95" y="60" width="10" height="30" rx="5" ry="5" transform="rotate(180 100 100)"/>
+                              <!-- Sudoeste (210°) -->
+                              <rect x="90" y="50" width="10" height="30" rx="5" ry="5" transform="rotate(210 85 95)"/>
+                              <!-- Oeste-sudoeste (240°) -->
+                              <rect x="69" y="25" width="10" height="30" rx="5" ry="5" transform="rotate(240 70 75)"/>
+                              <!-- Oeste (270°) -->
+                              <rect x="50" y="-3" width="10" height="30" rx="5" ry="5" transform="rotate(270 65 45)"/>
+                              <!-- Oeste-noroeste (300°) -->
+                              <rect x="47" y="-20" width="10" height="30" rx="5" ry="5" transform="rotate(300 70 15)"/>
+                              <!-- Noroeste (330°) -->
+                              <rect x="67" y="-20" width="10" height="30" rx="5" ry="5" transform="rotate(330 85 5)"/>
+                          </g>
+                     </g>
                     
                     <!-- ============================================================================
                          FOGUETE
