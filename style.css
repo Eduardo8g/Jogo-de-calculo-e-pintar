@@ -989,46 +989,46 @@ body::after {
     
     /* Diminuir tamanho das caixas de cálculo no celular */
     .sum-text {
-        font-size: 6px !important;
-        padding: 1px 3px !important;
+        font-size: 8px !important;
+        padding: 2px 4px !important;
         border-width: 1px !important;
-        border-radius: 3px !important;
+        border-radius: 4px !important;
     }
     
     /* Ajustar tamanhos específicos para cada cálculo no celular */
     .planet-calc {
-        font-size: 8px !important;
+        font-size: 10px !important;
     }
     
     .sun-calc {
-        font-size: 7px !important;
+        font-size: 9px !important;
     }
     
     .rocket-top-calc {
-        font-size: 6px !important;
+        font-size: 8px !important;
     }
     
     .rocket-window-calc {
-        font-size: 6px !important;
+        font-size: 8px !important;
     }
     
     .rocket-bottom-calc {
-        font-size: 6px !important;
+        font-size: 8px !important;
     }
     
     .rocket-flame-calc {
-        font-size: 6px !important;
+        font-size: 8px !important;
     }
     
     .astronaut-head-calc {
-        font-size: 7px !important;
+        font-size: 9px !important;
     }
     
     .astronaut-torso-calc {
-        font-size: 6px !important;
+        font-size: 8px !important;
     }
     
     .astronaut-legs-calc {
-        font-size: 6px !important;
+        font-size: 8px !important;
     }
 }
