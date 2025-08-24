@@ -973,4 +973,62 @@ body::after {
     .sum-text.interactive-calc.drop-success-calc {
         transform: translate(-50%, -50%) scale(1.18);
     }
+    
+    /* Ocultar linhas de cálculo no celular */
+    .planet-calc-line,
+    .sun-calc-line,
+    .rocket-top-calc-line,
+    .rocket-window-calc-line,
+    .rocket-bottom-calc-line,
+    .rocket-flame-calc-line,
+    .astronaut-head-calc-line,
+    .astronaut-torso-calc-line,
+    .astronaut-legs-calc-line {
+        display: none !important;
+    }
+    
+    /* Diminuir tamanho das caixas de cálculo no celular */
+    .sum-text {
+        font-size: 6px !important;
+        padding: 1px 3px !important;
+        border-width: 1px !important;
+        border-radius: 3px !important;
+    }
+    
+    /* Ajustar tamanhos específicos para cada cálculo no celular */
+    .planet-calc {
+        font-size: 8px !important;
+    }
+    
+    .sun-calc {
+        font-size: 7px !important;
+    }
+    
+    .rocket-top-calc {
+        font-size: 6px !important;
+    }
+    
+    .rocket-window-calc {
+        font-size: 6px !important;
+    }
+    
+    .rocket-bottom-calc {
+        font-size: 6px !important;
+    }
+    
+    .rocket-flame-calc {
+        font-size: 6px !important;
+    }
+    
+    .astronaut-head-calc {
+        font-size: 7px !important;
+    }
+    
+    .astronaut-torso-calc {
+        font-size: 6px !important;
+    }
+    
+    .astronaut-legs-calc {
+        font-size: 6px !important;
+    }
 }
