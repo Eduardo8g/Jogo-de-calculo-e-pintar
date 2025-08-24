@@ -336,24 +336,46 @@ class UIManager {
     static showAllCalculationTexts() {
         const textElements = document.querySelectorAll('.sum-text');
         textElements.forEach(element => {
-            // Resetar todas as propriedades de transição
-            element.classList.remove('hidden');
-            element.style.opacity = '';
-            element.style.transform = '';
-            
-            // Limpar estados visuais de drag/drop
-            element.classList.remove('drag-over-calc', 'drop-success-calc');
-            
             // Ajustar posição baseado no dispositivo atual
             const area = this.getElementArea(element);
             if (area) {
-                this.adjustTextPosition(element, area);
-                // Garantir que a box seja interativa
-                this.makeCalculationBoxInteractive(element, area);
+                // Verificar se a área já foi pintada
+                const areaMapping = {
+                    'planet': 'planet',
+                    'sun': 'sun',
+                    'rocket-top': 'rocketTop',
+                    'rocket-window': 'rocketWindow',
+                    'rocket-bottom': 'rocketBottom',
+                    'rocket-flame': 'rocketFlame',
+                    'astronaut-head': 'astronautHead',
+                    'astronaut-torso': 'astronautTorso',
+                    'astronaut-legs': 'astronautLegs'
+                };
+                const mappedArea = areaMapping[area];
+                
+                // Se a área foi pintada, manter escondida
+                if (gameController && gameController.gameState && gameController.gameState.isPainted(area)) {
+                    element.classList.add('hidden');
+                    element.style.opacity = '0';
+                    element.style.transform = 'scale(0.8)';
+                } else {
+                    // Resetar todas as propriedades de transição para áreas não pintadas
+                    element.classList.remove('hidden');
+                    element.style.opacity = '';
+                    element.style.transform = '';
+                    
+                    // Limpar estados visuais de drag/drop
+                    element.classList.remove('drag-over-calc', 'drop-success-calc');
+                    
+                    // Ajustar posição
+                    this.adjustTextPosition(element, area);
+                    // Garantir que a box seja interativa
+                    this.makeCalculationBoxInteractive(element, area);
+                }
             }
         });
         
-        // Mostrar todas as linhas novamente
+        // Mostrar apenas as linhas de áreas não pintadas
         this.showAllCalculationLines();
     }
     
@@ -372,25 +394,33 @@ class UIManager {
     }
     
     static showAllCalculationLines() {
-        const lineClasses = [
-            'planet-calc-line',
-            'sun-calc-line',
-            'rocket-top-calc-line',
-            'rocket-window-calc-line',
-            'rocket-bottom-calc-line',
-            'rocket-flame-calc-line',
-            'astronaut-head-calc-line',
-            'astronaut-torso-calc-line',
-            'astronaut-legs-calc-line'
-        ];
+        const lineMapping = {
+            'planet-calc-line': 'planet',
+            'sun-calc-line': 'sun',
+            'rocket-top-calc-line': 'rocket-top',
+            'rocket-window-calc-line': 'rocket-window',
+            'rocket-bottom-calc-line': 'rocket-bottom',
+            'rocket-flame-calc-line': 'rocket-flame',
+            'astronaut-head-calc-line': 'astronaut-head',
+            'astronaut-torso-calc-line': 'astronaut-torso',
+            'astronaut-legs-calc-line': 'astronaut-legs'
+        };
         
-        lineClasses.forEach(lineClass => {
+        Object.entries(lineMapping).forEach(([lineClass, area]) => {
             const lineElement = document.querySelector(`.${lineClass}`);
             if (lineElement) {
-                // Resetar todas as propriedades de transição
-                lineElement.style.display = '';
-                lineElement.style.opacity = '';
-                lineElement.style.transform = '';
+                // Verificar se a área foi pintada
+                if (gameController && gameController.gameState && gameController.gameState.isPainted(area)) {
+                    // Manter linha escondida se a área foi pintada
+                    lineElement.style.display = 'none';
+                    lineElement.style.opacity = '0';
+                    lineElement.style.transform = 'scale(0.8)';
+                } else {
+                    // Resetar todas as propriedades de transição para áreas não pintadas
+                    lineElement.style.display = '';
+                    lineElement.style.opacity = '';
+                    lineElement.style.transform = '';
+                }
             }
         });
     }
