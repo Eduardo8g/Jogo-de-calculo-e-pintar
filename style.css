@@ -24,7 +24,7 @@ body {
 /* ============================================================================
    EFEITOS DE FUNDO E ANIMAÇÕES
    ============================================================================ */
-/* Efeito de estrelas cintilantes */
+/* Efeito de estrelas cintilantes - Camada 1 */
 body::before {
     content: '';
     position: fixed;
@@ -37,17 +37,128 @@ body::before {
         radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
         radial-gradient(1px 1px at 90px 40px, #fff, transparent),
         radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(2px 2px at 160px 30px, #fff, transparent);
+        radial-gradient(2px 2px at 160px 30px, #fff, transparent),
+        radial-gradient(1px 1px at 200px 50px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 240px 20px, #fff, transparent),
+        radial-gradient(1px 1px at 280px 80px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 320px 60px, #eee, transparent),
+        radial-gradient(1px 1px at 360px 40px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 400px 70px, #fff, transparent),
+        radial-gradient(1px 1px at 440px 30px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 480px 50px, #eee, transparent),
+        radial-gradient(1px 1px at 520px 80px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 560px 20px, #fff, transparent),
+        radial-gradient(1px 1px at 600px 60px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 640px 40px, #eee, transparent),
+        radial-gradient(1px 1px at 680px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 720px 30px, #fff, transparent),
+        radial-gradient(1px 1px at 760px 50px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 800px 40px, #eee, transparent),
+        radial-gradient(1px 1px at 840px 70px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 880px 20px, #fff, transparent),
+        radial-gradient(1px 1px at 920px 60px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 960px 80px, #eee, transparent),
+        radial-gradient(1px 1px at 1000px 30px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 1040px 50px, #fff, transparent),
+        radial-gradient(1px 1px at 1080px 70px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 1120px 40px, #eee, transparent),
+        radial-gradient(1px 1px at 1160px 20px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 1200px 60px, #fff, transparent),
+        radial-gradient(1px 1px at 1240px 80px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 1280px 30px, #eee, transparent),
+        radial-gradient(1px 1px at 1320px 50px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 1360px 70px, #fff, transparent),
+        radial-gradient(1px 1px at 1400px 40px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 1440px 20px, #eee, transparent),
+        radial-gradient(1px 1px at 1480px 60px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 1520px 80px, #fff, transparent),
+        radial-gradient(1px 1px at 1560px 30px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 1600px 50px, #eee, transparent);
     background-repeat: repeat;
-    background-size: 200px 100px;
-    animation: sparkle 20s linear infinite;
+    background-size: 1600px 100px;
+    animation: sparkle 8s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Efeito de estrelas cintilantes - Camada 2 (mais lentas) */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(1px 1px at 50px 20px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 120px 60px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 180px 90px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 250px 10px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 320px 50px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 380px 30px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 450px 70px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 520px 40px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 590px 20px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 660px 60px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 730px 30px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 800px 70px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 870px 40px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 940px 20px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 1010px 60px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 1080px 30px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 1150px 70px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 1220px 40px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 1290px 20px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 1360px 60px, rgba(255,255,255,0.8), transparent);
+    background-repeat: repeat;
+    background-size: 800px 100px;
+    animation: sparkle 6s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Efeito de estrelas cintilantes - Camada 3 (estrelas pequenas e rápidas) */
+.stars-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(1px 1px at 30px 15px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 80px 45px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 140px 25px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 200px 65px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 260px 35px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 320px 55px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 380px 15px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 440px 45px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 500px 25px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 560px 65px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 620px 35px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 680px 55px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 740px 15px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 800px 45px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 860px 25px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 920px 65px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 980px 35px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 1040px 55px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 1100px 15px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 1160px 45px, rgba(255,255,255,0.5), transparent);
+    background-repeat: repeat;
+    background-size: 800px 100px;
+    animation: sparkle 4s linear infinite;
     pointer-events: none;
     z-index: 0;
 }
 
 /* Gradientes de fundo coloridos */
-body::after {
-    content: '';
+body {
+    position: relative;
+}
+
+/* Gradientes de fundo coloridos */
+.gradient-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -65,8 +176,8 @@ body::after {
    ANIMAÇÕES
    ============================================================================ */
 @keyframes sparkle {
-    from { transform: translateX(0); }
-    to { transform: translateX(200px); }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
 }
 
 @keyframes rocket-launch {
