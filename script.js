@@ -32,7 +32,7 @@ const GAME_CONFIG = {
 };
 
 /* ============================================================================
-   UTILITÁRIOS PARA RESPONSIVIDADE
+   UTILITÁRIOS PARA RESPONSIVIDADE - OTIMIZADOS
    ============================================================================ */
 class ResponsiveUtils {
     static isMobile() {
@@ -63,15 +63,22 @@ class ResponsiveUtils {
         return scales[screenSize] || 1.0;
     }
     
+    // Debounce otimizado com throttle para melhor performance
     static debounce(func, wait) {
         let timeout;
+        let lastCall = 0;
         return function executedFunction(...args) {
-            const later = () => {
+            const now = Date.now();
+            if (now - lastCall < wait) {
                 clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    lastCall = now;
+                    func(...args);
+                }, wait);
+            } else {
+                lastCall = now;
                 func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            }
         };
     }
 }
@@ -442,10 +449,15 @@ class UIManager {
 
     static makeCalculationBoxInteractive(element, area) {
         // Remover eventos anteriores para evitar duplicação
-        element.removeEventListener('click', element._clickHandler);
-        element.removeEventListener('dragover', element._dragoverHandler);
-        element.removeEventListener('dragleave', element._dragleaveHandler);
-        element.removeEventListener('drop', element._dropHandler);
+        if (element._clickHandler) {
+            element.removeEventListener('click', element._clickHandler);
+            element.removeEventListener('dragover', element._dragoverHandler);
+            element.removeEventListener('dragleave', element._dragleaveHandler);
+            element.removeEventListener('drop', element._dropHandler);
+            if (element._touchHandler) {
+                element.removeEventListener('touchstart', element._touchHandler);
+            }
+        }
         
         // Tornar clicável
         element.style.pointerEvents = 'auto';
@@ -454,15 +466,14 @@ class UIManager {
         // Adicionar classe para estilização
         element.classList.add('interactive-calc');
         
-        // Handler de clique
+        // Handler de clique otimizado
         element._clickHandler = (e) => {
             e.stopPropagation();
             if (!gameController || !gameController.gameState) {
-                return; // Sair se gameController não estiver disponível
+                return;
             }
             
             const selectedColor = gameController.gameState.getSelectedColor();
-            const selectedNumber = gameController.gameState.getSelectedNumber();
             
             if (!selectedColor) {
                 UIManager.showFeedback('🎨 Primeiro escolha uma cor!', 'error');
@@ -477,24 +488,22 @@ class UIManager {
             gameController.processAreaClick(area, selectedColor);
         };
         
-        // Handler de dragover
+        // Handler de dragover otimizado
         element._dragoverHandler = (e) => {
             e.preventDefault();
             e.stopPropagation();
             element.classList.add('drag-over-calc');
             
-            // Remover a classe drag-over do foguete quando estiver sobre a box de cálculo
             const rocket = document.getElementById('rocket');
             if (rocket) {
                 rocket.classList.remove('drag-over');
             }
         };
         
-        // Handler de dragleave
+        // Handler de dragleave otimizado
         element._dragleaveHandler = (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // Verificar se realmente saiu da área da box
             const rect = element.getBoundingClientRect();
             const x = e.clientX;
             const y = e.clientY;
@@ -502,7 +511,6 @@ class UIManager {
             if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
                 element.classList.remove('drag-over-calc');
                 
-                // Verificar se o mouse está sobre o foguete para adicionar a classe drag-over
                 const rocket = document.getElementById('rocket');
                 if (rocket) {
                     const rocketRect = rocket.getBoundingClientRect();
@@ -514,7 +522,7 @@ class UIManager {
             }
         };
         
-        // Handler de drop
+        // Handler de drop otimizado
         element._dropHandler = (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -524,7 +532,7 @@ class UIManager {
                 const data = JSON.parse(e.dataTransfer.getData('text/plain'));
                 
                 if (!gameController || !gameController.gameState) {
-                    return; // Sair se gameController não estiver disponível
+                    return;
                 }
                 
                 if (gameController.gameState.isPainted(area)) {
@@ -534,11 +542,11 @@ class UIManager {
                 
                 gameController.handleDragAndDrop(area, data.color, data.number);
                 
-                // Adicionar feedback visual de sucesso
+                // Feedback visual otimizado
                 element.classList.add('drop-success-calc');
                 setTimeout(() => {
                     element.classList.remove('drop-success-calc');
-                }, 300);
+                }, 200); // Reduzido de 300ms para 200ms
                 
             } catch (error) {
                 console.error('Erro ao processar drop na box de cálculo:', error);
@@ -551,12 +559,13 @@ class UIManager {
         element.addEventListener('dragleave', element._dragleaveHandler);
         element.addEventListener('drop', element._dropHandler);
         
-        // Suporte para dispositivos móveis
+        // Suporte para dispositivos móveis otimizado
         if (ResponsiveUtils.isMobile()) {
-            element.addEventListener('touchstart', (e) => {
+            element._touchHandler = (e) => {
                 e.preventDefault();
                 element._clickHandler(e);
-            }, { passive: false });
+            };
+            element.addEventListener('touchstart', element._touchHandler, { passive: false });
         }
     }
 
@@ -672,142 +681,73 @@ class ColorManager {
         const svg = document.querySelector('.rocket svg');
         const elements = this.getElementsForType(svg, elementType);
         
-        elements.forEach(el => {
-            if (el.getAttribute('fill') !== 'black' && 
-                el.getAttribute('fill') !== '#FFFFFF' && 
-                el.getAttribute('fill') !== '#333333' &&
-                el.getAttribute('fill') !== '#666666' &&
-                el.getAttribute('fill') !== '#555555' &&
-                el.getAttribute('fill') !== '#777777') {
-                el.style.fill = color;
-            }
-            
-            // Para o sol, também colorir os raios (fill)
-            if (elementType === 'sun' && (el.classList.contains('sun-rays') || el.classList.contains('sun-main'))) {
-                el.style.fill = color;
-            }
-            
-            // Para o planeta, colorir o contorno também
-            if (elementType === 'planet' && (el.classList.contains('planet-main') || el.classList.contains('planet-crater'))) {
-                el.style.stroke = color;
-            }
+        // Aplicar cor usando requestAnimationFrame para melhor performance
+        requestAnimationFrame(() => {
+            elements.forEach(el => {
+                if (el.getAttribute('fill') !== 'black' && 
+                    el.getAttribute('fill') !== '#FFFFFF' && 
+                    el.getAttribute('fill') !== '#333333' &&
+                    el.getAttribute('fill') !== '#666666' &&
+                    el.getAttribute('fill') !== '#555555' &&
+                    el.getAttribute('fill') !== '#777777') {
+                    el.style.fill = color;
+                }
+                
+                // Para o sol, também colorir os raios (fill)
+                if (elementType === 'sun' && (el.classList.contains('sun-rays') || el.classList.contains('sun-main'))) {
+                    el.style.fill = color;
+                }
+                
+                // Para o planeta, colorir o contorno também
+                if (elementType === 'planet' && (el.classList.contains('planet-main') || el.classList.contains('planet-crater'))) {
+                    el.style.stroke = color;
+                }
+            });
         });
 
-        // ===== EFEITOS DE SOMBREAMENTO POR ELEMENTO =====
-        
-        // Efeito de sombreamento/volume na lua quando pintada
-        if (elementType === 'planet') {
-            const glowOuter = svg.querySelectorAll('.planet-glow-outer');
-            const glowInner = svg.querySelectorAll('.planet-glow-inner');
-            const highlights = svg.querySelectorAll('.planet-highlight');
+        // Efeitos de sombreamento simplificados para melhor performance
+        requestAnimationFrame(() => {
+            if (elementType === 'planet') {
+                const glowOuter = svg.querySelectorAll('.planet-glow-outer');
+                const glowInner = svg.querySelectorAll('.planet-glow-inner');
+                const highlights = svg.querySelectorAll('.planet-highlight');
 
-            glowOuter.forEach(g => { g.style.opacity = '0.15'; });
-            glowInner.forEach(g => { g.style.opacity = '0.25'; });
-            // valores diferentes para criar pontos de luz variados
-            highlights.forEach((h, idx) => {
-                const values = ['0.35', '0.25', '0.18', '0.18'];
-                h.style.opacity = values[idx % values.length];
-            });
+                glowOuter.forEach(g => { g.style.opacity = '0.15'; });
+                glowInner.forEach(g => { g.style.opacity = '0.25'; });
+                highlights.forEach((h, idx) => {
+                    const values = ['0.35', '0.25', '0.18', '0.18'];
+                    h.style.opacity = values[idx % values.length];
+                });
+            }
 
-            // leve sombra para dar volume
-            const planetParts = svg.querySelectorAll('.planet-main, .planet-crater');
-            planetParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 2px 2px rgba(0,0,0,0.25))';
-            });
-        }
+            if (elementType === 'sun') {
+                const sunGlows = svg.querySelectorAll('.sun-glow');
+                sunGlows.forEach((g, idx) => {
+                    g.style.opacity = idx === 0 ? '0.9' : '0.65';
+                });
+            }
 
-        // Efeito de sombreamento/volume no sol quando pintado
-        if (elementType === 'sun') {
-            const sunMain = svg.querySelectorAll('.sun-main');
-            const sunRays = svg.querySelectorAll('.sun-rays');
-            const sunGlows = svg.querySelectorAll('.sun-glow');
+            if (elementType === 'rocket-top') {
+                const shading = svg.querySelectorAll('.rocket-top-shading');
+                shading.forEach(s => { s.style.opacity = '0.6'; });
+            }
 
-            // brilho quente e sombra leve para dar profundidade
-            sunMain.forEach(el => {
-                el.style.filter = 'drop-shadow(0 1px 2px rgba(0,0,0,0.2)) drop-shadow(0 0 12px rgba(255, 200, 0, 0.6))';
-            });
-            sunRays.forEach(g => {
-                g.style.filter = 'drop-shadow(0 0 10px rgba(255, 200, 0, 0.6))';
-            });
+            if (elementType === 'astronaut-head') {
+                const headHighlights = svg.querySelectorAll('.astronaut-head[fill="#FFFFFF"]');
+                headHighlights.forEach((h, idx) => {
+                    const target = idx < 2 ? '0.7' : '0.5';
+                    h.style.opacity = target;
+                });
+            }
 
-            // reforçar o glow interno e pontos de luz
-            sunGlows.forEach((g, idx) => {
-                g.style.opacity = idx === 0 ? '0.9' : '0.65';
-            });
-        }
-
-        // Efeito de sombreamento no topo do foguete quando pintado
-        if (elementType === 'rocket-top') {
-            const shading = svg.querySelectorAll('.rocket-top-shading');
-            shading.forEach(s => { s.style.opacity = '0.6'; });
-            // leve drop-shadow para dar volume geral
-            const topParts = svg.querySelectorAll('.rocket-top');
-            topParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))';
-            });
-        }
-
-        // Efeito de sombreamento no corpo/base do foguete quando pintado
-        if (elementType === 'rocket-bottom') {
-            const bottomParts = svg.querySelectorAll('.rocket-bottom');
-            bottomParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 -1px 2px rgba(0,0,0,0.18)) drop-shadow(0 3px 4px rgba(0,0,0,0.28))';
-            });
-        }
-
-        // Efeito de sombreamento/brilho nas chamas do foguete quando pintadas
-        if (elementType === 'rocket-flame') {
-            const flameParts = svg.querySelectorAll('.rocket-flames');
-            flameParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 0 8px rgba(255,150,0,0.75)) drop-shadow(0 0 16px rgba(255,200,0,0.55))';
-            });
-        }
-
-        // Efeito de sombreamento/volume na cabeça do astronauta quando pintada
-        if (elementType === 'astronaut-head') {
-            const headParts = svg.querySelectorAll('.astronaut-head');
-            headParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))';
-            });
-
-            // Reforçar levemente os highlights brancos do capacete
-            const headHighlights = svg.querySelectorAll('.astronaut-head[fill="#FFFFFF"]');
-            headHighlights.forEach((h, idx) => {
-                const target = idx < 2 ? '0.7' : '0.5';
-                h.style.opacity = target;
-            });
-        }
-
-        // Efeito de sombreamento/volume no torso e braços do astronauta quando pintados
-        if (elementType === 'astronaut-torso') {
-            const torsoParts = svg.querySelectorAll('.astronaut-torso');
-            torsoParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.22)) drop-shadow(0 1px 1px rgba(255,255,255,0.08))';
-            });
-        }
-
-        // Efeito de sombreamento/volume nas pernas do astronauta quando pintadas
-        if (elementType === 'astronaut-legs') {
-            const legParts = svg.querySelectorAll('.astronaut-legs');
-            legParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 2px 3px rgba(0,0,0,0.22)) drop-shadow(0 1px 1px rgba(255,255,255,0.06))';
-            });
-        }
-
-        // Efeito de sombreamento/brilho na janela do foguete quando pintada
-        if (elementType === 'rocket-window') {
-            const windowParts = svg.querySelectorAll('.rocket-window');
-            windowParts.forEach(p => {
-                p.style.filter = 'drop-shadow(0 1px 2px rgba(0,0,0,0.25)) drop-shadow(0 0 10px rgba(255,255,255,0.35))';
-            });
-
-            // Reforçar highlights brancos da janela para dar volume
-            const windowHighlights = svg.querySelectorAll('.rocket-window[fill="#FFFFFF"]');
-            windowHighlights.forEach((h, idx) => {
-                const target = idx === 0 ? '0.8' : '0.6';
-                h.style.opacity = target;
-            });
-        }
+            if (elementType === 'rocket-window') {
+                const windowHighlights = svg.querySelectorAll('.rocket-window[fill="#FFFFFF"]');
+                windowHighlights.forEach((h, idx) => {
+                    const target = idx === 0 ? '0.8' : '0.6';
+                    h.style.opacity = target;
+                });
+            }
+        });
     }
 
     static getElementsForType(svg, elementType) {
@@ -1123,7 +1063,7 @@ class GameController {
         const rocket = document.getElementById('rocket');
         const dragIndicator = document.getElementById('dragIndicator');
         
-        // Eventos de drag para as cores
+        // Eventos de drag para as cores - otimizados
         document.addEventListener('dragstart', (e) => {
             if (e.target.classList.contains('color-option')) {
                 const number = parseInt(e.target.dataset.number);
@@ -1142,16 +1082,20 @@ class GameController {
                 dragIndicator.style.backgroundColor = color;
                 dragIndicator.classList.add('show');
                 
-                // Definir imagem de drag personalizada para mostrar apenas a cor e o número
                 e.dataTransfer.setDragImage(dragIndicator, 20, 20);
             }
         });
 
+        // Otimizar evento drag com throttling
+        let dragTimeout;
         document.addEventListener('drag', (e) => {
             if (e.target.classList.contains('color-option')) {
-                // Atualizar posição do indicador
-                dragIndicator.style.left = (e.clientX - 20) + 'px';
-                dragIndicator.style.top = (e.clientY - 20) + 'px';
+                if (dragTimeout) return;
+                dragTimeout = requestAnimationFrame(() => {
+                    dragIndicator.style.left = (e.clientX - 20) + 'px';
+                    dragIndicator.style.top = (e.clientY - 20) + 'px';
+                    dragTimeout = null;
+                });
             }
         });
 
@@ -1160,6 +1104,10 @@ class GameController {
                 e.target.style.opacity = '1';
                 e.target.classList.remove('dragging');
                 dragIndicator.classList.remove('show');
+                if (dragTimeout) {
+                    cancelAnimationFrame(dragTimeout);
+                    dragTimeout = null;
+                }
             }
         });
 
@@ -1170,7 +1118,6 @@ class GameController {
         });
 
         rocket.addEventListener('dragleave', (e) => {
-            // Verificar se realmente saiu da área do foguete
             const rect = rocket.getBoundingClientRect();
             const x = e.clientX;
             const y = e.clientY;
@@ -1192,11 +1139,11 @@ class GameController {
                 if (clickedArea) {
                     if (gameController) {
                         this.handleDragAndDrop(clickedArea, data.color, data.number);
-                        // Adicionar feedback visual de sucesso
+                        // Feedback visual otimizado
                         rocket.classList.add('drop-success');
                         setTimeout(() => {
                             rocket.classList.remove('drop-success');
-                        }, 300);
+                        }, 200); // Reduzido de 300ms para 200ms
                     }
                 } else {
                     UIManager.showFeedback('🎯 Solte a cor em uma área com cálculo!', 'error');
@@ -1206,11 +1153,12 @@ class GameController {
             }
         });
 
-        // Suporte para dispositivos móveis com touch events
+        // Suporte para dispositivos móveis otimizado
         if (ResponsiveUtils.isMobile()) {
             let draggedElement = null;
             let startX, startY;
             let isDragging = false;
+            let touchTimeout;
 
             document.addEventListener('touchstart', (e) => {
                 if (e.target.classList.contains('color-option')) {
@@ -1222,7 +1170,6 @@ class GameController {
                     e.target.style.opacity = '0.5';
                     e.target.classList.add('dragging');
                     
-                    // Mostrar indicador de drag
                     const number = parseInt(e.target.dataset.number);
                     const color = e.target.dataset.color;
                     dragIndicator.textContent = number;
@@ -1240,9 +1187,12 @@ class GameController {
                     const deltaX = Math.abs(touch.clientX - startX);
                     const deltaY = Math.abs(touch.clientY - startY);
                     
-                    // Atualizar posição do indicador
-                    dragIndicator.style.left = (touch.clientX - 20) + 'px';
-                    dragIndicator.style.top = (touch.clientY - 20) + 'px';
+                    if (touchTimeout) return;
+                    touchTimeout = requestAnimationFrame(() => {
+                        dragIndicator.style.left = (touch.clientX - 20) + 'px';
+                        dragIndicator.style.top = (touch.clientY - 20) + 'px';
+                        touchTimeout = null;
+                    });
                     
                     if (deltaX > 10 || deltaY > 10) {
                         isDragging = true;
@@ -1257,7 +1207,6 @@ class GameController {
                     const endX = touch.clientX;
                     const endY = touch.clientY;
                     
-                    // Verificar se o movimento foi significativo
                     const deltaX = Math.abs(endX - startX);
                     const deltaY = Math.abs(endY - startY);
                     
@@ -1269,11 +1218,10 @@ class GameController {
                             if (gameController) {
                                 this.handleDragAndDrop(clickedArea, color, number);
                                 
-                                // Adicionar feedback visual de sucesso
                                 rocket.classList.add('drop-success');
                                 setTimeout(() => {
                                     rocket.classList.remove('drop-success');
-                                }, 300);
+                                }, 200); // Reduzido de 300ms para 200ms
                             }
                         } else {
                             UIManager.showFeedback('🎯 Solte a cor em uma área com cálculo!', 'error');
@@ -1286,8 +1234,11 @@ class GameController {
                     draggedElement = null;
                     isDragging = false;
                     dragIndicator.classList.remove('show');
+                    if (touchTimeout) {
+                        cancelAnimationFrame(touchTimeout);
+                        touchTimeout = null;
+                    }
                 } else if (draggedElement) {
-                    // Se não estava arrastando, apenas resetar
                     draggedElement.style.opacity = '1';
                     draggedElement.classList.remove('dragging');
                     draggedElement = null;
@@ -1315,24 +1266,28 @@ class GameController {
     
     /* ===== CONFIGURAÇÃO DE HANDLERS RESPONSIVOS ===== */
     setupResponsiveHandlers() {
-        // Debounced resize handler para otimizar performance
+        // Debounced resize handler otimizado
         const debouncedResize = ResponsiveUtils.debounce(() => {
             this.handleResize();
-        }, 250);
+        }, 100); // Reduzido de 250ms para 100ms
         
         window.addEventListener('resize', debouncedResize);
         
         // Handler para mudança de orientação em dispositivos móveis
         window.addEventListener('orientationchange', () => {
+            // Reduzido timeout para melhor responsividade
             setTimeout(() => {
                 this.handleResize();
-            }, 100);
+            }, 50);
         });
     }
     
     handleResize() {
         // Ajustar posições dos textos de cálculo quando a tela muda de tamanho
-        UIManager.showAllCalculationTexts();
+        // Usar requestAnimationFrame para melhor performance
+        requestAnimationFrame(() => {
+            UIManager.showAllCalculationTexts();
+        });
     }
 
     /* ===== INICIALIZAÇÃO DE NOVO JOGO ===== */

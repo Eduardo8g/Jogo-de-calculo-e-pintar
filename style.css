@@ -22,9 +22,9 @@ body {
 }
 
 /* ============================================================================
-   EFEITOS DE FUNDO E ANIMAÇÕES
+   EFEITOS DE FUNDO SIMPLIFICADOS
    ============================================================================ */
-/* Efeito de estrelas cintilantes - Camada 1 */
+/* Efeito de estrelas estáticas - removido animação para melhor performance */
 body::before {
     content: '';
     position: fixed;
@@ -66,88 +66,16 @@ body::before {
         radial-gradient(2px 2px at 1200px 60px, #fff, transparent),
         radial-gradient(1px 1px at 1240px 80px, rgba(255,255,255,0.5), transparent),
         radial-gradient(2px 2px at 1280px 30px, #eee, transparent),
-        radial-gradient(1px 1px at 1320px 50px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 1320px 50px, rgba(255,255,255,0.8), transparent),
         radial-gradient(2px 2px at 1360px 70px, #fff, transparent),
-        radial-gradient(1px 1px at 1400px 40px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(2px 2px at 1400px 40px, rgba(255,255,255,0.6), transparent),
         radial-gradient(2px 2px at 1440px 20px, #eee, transparent),
-        radial-gradient(1px 1px at 1480px 60px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(2px 2px at 1480px 60px, rgba(255,255,255,0.7), transparent),
         radial-gradient(2px 2px at 1520px 80px, #fff, transparent),
-        radial-gradient(1px 1px at 1560px 30px, rgba(255,255,255,0.5), transparent),
+        radial-gradient(2px 2px at 1560px 30px, rgba(255,255,255,0.5), transparent),
         radial-gradient(2px 2px at 1600px 50px, #eee, transparent);
     background-repeat: repeat;
     background-size: 1600px 100px;
-    animation: sparkle 8s linear infinite;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Efeito de estrelas cintilantes - Camada 2 (mais lentas) */
-body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(1px 1px at 50px 20px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(1px 1px at 120px 60px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 180px 90px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(2px 2px at 250px 10px, rgba(255,255,255,0.4), transparent),
-        radial-gradient(1px 1px at 320px 50px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 380px 30px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(2px 2px at 450px 70px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 520px 40px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(2px 2px at 590px 20px, rgba(255,255,255,0.4), transparent),
-        radial-gradient(1px 1px at 660px 60px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 730px 30px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(2px 2px at 800px 70px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 870px 40px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(2px 2px at 940px 20px, rgba(255,255,255,0.4), transparent),
-        radial-gradient(1px 1px at 1010px 60px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 1080px 30px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(2px 2px at 1150px 70px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 1220px 40px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(2px 2px at 1290px 20px, rgba(255,255,255,0.4), transparent),
-        radial-gradient(1px 1px at 1360px 60px, rgba(255,255,255,0.8), transparent);
-    background-repeat: repeat;
-    background-size: 800px 100px;
-    animation: sparkle 6s linear infinite;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Efeito de estrelas cintilantes - Camada 3 (estrelas pequenas e rápidas) */
-.stars-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(1px 1px at 30px 15px, rgba(255,255,255,0.9), transparent),
-        radial-gradient(1px 1px at 80px 45px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(1px 1px at 140px 25px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 200px 65px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 260px 35px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(1px 1px at 320px 55px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(1px 1px at 380px 15px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 440px 45px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 500px 25px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(1px 1px at 560px 65px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(1px 1px at 620px 35px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 680px 55px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 740px 15px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(1px 1px at 800px 45px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(1px 1px at 860px 25px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 920px 65px, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 980px 35px, rgba(255,255,255,0.7), transparent),
-        radial-gradient(1px 1px at 1040px 55px, rgba(255,255,255,0.6), transparent),
-        radial-gradient(1px 1px at 1100px 15px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 1160px 45px, rgba(255,255,255,0.5), transparent);
-    background-repeat: repeat;
-    background-size: 800px 100px;
-    animation: sparkle 4s linear infinite;
     pointer-events: none;
     z-index: 0;
 }
@@ -157,7 +85,6 @@ body {
     position: relative;
 }
 
-/* Gradientes de fundo coloridos */
 .gradient-overlay {
     position: fixed;
     top: 0;
@@ -173,13 +100,8 @@ body {
 }
 
 /* ============================================================================
-   ANIMAÇÕES
+   ANIMAÇÕES SIMPLIFICADAS
    ============================================================================ */
-@keyframes sparkle {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-}
-
 @keyframes rocket-launch {
     0% { transform: translateY(0) rotate(0deg); }
     50% { transform: translateY(-20px) rotate(5deg); }
@@ -625,60 +547,20 @@ body {
 }
 
 /* ============================================================================
-   TRANSIÇÕES DOS ELEMENTOS SVG
+   TRANSIÇÕES DOS ELEMENTOS SVG - SIMPLIFICADAS
    ============================================================================ */
-/* Transições de sombreamento da lua */
-.planet-main, .planet-crater {
-    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
-}
-
-.planet-glow-outer, .planet-glow-inner, .planet-highlight {
-    transition: opacity 0.5s ease;
-}
-
-/* Transições do sol */
-.sun-main, .sun-rays, .sun-glow {
-    transition: stroke 0.3s ease, fill 0.3s ease, opacity 0.4s ease, filter 0.3s ease;
-}
-
-/* Transições do topo do foguete */
-.rocket-top {
-    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
-}
-
-/* Transições da base do foguete */
-.rocket-bottom {
-    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
-}
-
-/* Transições das chamas do foguete */
-.rocket-flames {
-    transition: filter 0.3s ease;
-}
-
-/* Transições da cabeça do astronauta */
-.astronaut-head {
-    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
-}
-
-/* Transições do torso/braços do astronauta */
-.astronaut-torso {
-    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
-}
-
-/* Transições das pernas do astronauta */
-.astronaut-legs {
-    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease;
-}
-
-/* Transições da janela do foguete */
+/* Transições básicas para melhor performance */
+.planet-main, .planet-crater,
+.sun-main, .sun-rays, .sun-glow,
+.rocket-top, .rocket-bottom, .rocket-flames,
+.astronaut-head, .astronaut-torso, .astronaut-legs,
 .rocket-window {
-    transition: fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+    transition: fill 0.3s ease, stroke 0.3s ease;
 }
 
-/* Sombreamento do topo do foguete */
+.planet-glow-outer, .planet-glow-inner, .planet-highlight,
 .rocket-top-shading {
-    transition: opacity 0.4s ease;
+    transition: opacity 0.3s ease;
 }
 
 /* ============================================================================
@@ -721,37 +603,17 @@ body {
     cursor: pointer;
 }
 
-/* Estilos para o pop-up das opções do select */
-.difficulty-select option {
-    background-color: #000000;
-    color: #ffffff;
-    padding: 8px 12px;
-    font-weight: 500;
-}
-
-/* Estilo para quando o select está aberto (foco) */
 .difficulty-select:focus {
     outline: none;
     border-color: #00ffff;
     box-shadow: 0 0 10px rgba(0,255,255,0.5);
 }
 
-/* Estilo para o hover das opções */
-.difficulty-select option:hover {
-    background-color: #333333;
-}
-
-/* Estilo para a opção selecionada */
-.difficulty-select option:checked {
-    background-color: #00ffff;
-    color: #000000;
-    font-weight: bold;
-}
-
-/* Estilo para quando o select está aberto */
-.difficulty-select:focus option {
+.difficulty-select option {
     background-color: #000000;
     color: #ffffff;
+    padding: 8px 12px;
+    font-weight: 500;
 }
 
 /* ============================================================================
@@ -810,12 +672,11 @@ body {
 }
 
 .color-option.used {
-    /* Removido o estilo verde - agora só fica verde quando completa */
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Novo: estilo para cores completas (todas as áreas pintadas) */
+/* Estilo para cores completas */
 .color-option.completed {
     background: rgba(0,255,0,0.4) !important;
     border: 2px solid #00ff00 !important;
@@ -870,7 +731,7 @@ body {
 }
 
 /* ============================================================================
-   EFEITOS DE DRAG AND DROP NO FOGUETE
+   EFEITOS DE DRAG AND DROP NO FOGUETE - SIMPLIFICADOS
    ============================================================================ */
 /* Indicadores visuais para áreas de drop */
 .drop-zone {
@@ -895,45 +756,6 @@ body {
 
 .drop-zone.drag-over::before {
     opacity: 1;
-}
-
-/* Destaque das áreas clicáveis durante drag */
-.rocket.drag-over .planet-main,
-.rocket.drag-over .planet-crater {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .sun-main,
-.rocket.drag-over .sun-rays {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .rocket-top {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .rocket-window {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .rocket-bottom {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .rocket-flames {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .astronaut-head {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .astronaut-torso {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
-}
-
-.rocket.drag-over .astronaut-legs {
-    filter: drop-shadow(0 0 8px rgba(0,255,255,0.6));
 }
 
 /* ============================================================================
